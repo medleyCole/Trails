@@ -53,13 +53,14 @@ public class CAR : MonoBehaviour
 
     private void Awake()
     {
-        //this way of setting is veyr much for the prototype
+        //this way of setting is very much for the prototype
         //just set some basic paramaters here
         //also manage initial customization here
 
     }
 
-    private void Update()
+    // we are doing NOTHING with update right now
+  /*  private void Update()
     {
         //move and event stuff
 
@@ -78,21 +79,23 @@ public class CAR : MonoBehaviour
         {
             milesMoved = checkpointMiles;
             //assign checkpointMiles to the next one in the array that's..... somewhere
-            //do the checkpoint event that's also... somewhere``````````````````````````````````````````````
+            //do the checkpoint event that's also... somewhere
         }
 
         //once that day is over, do your health and medical stuff.
 
         //for breaking down later: if you break down and fail to repair, mmediatly go to night
         //do those calculations then try another repair
-    }
+    } */
 
     //these functions are called by events in updated to manage uhh stuff
     //ideally there would be a seperate manager so multiple cars can reference it
     //realistically, this is a prototype and I'm a dumb ass. so 1 car, 1 event manager, works.
 
 
-    //setters
+    /*##############################
+      * Public Setters
+      * ###########################*/
     public void setSettler(int settler, string operation)
     {
         //this function will select a settler by number and perform some operaiton on them
@@ -133,7 +136,63 @@ public class CAR : MonoBehaviour
     {
         isRechargerBroken = broken;
         return;
-    }   
+    }
+
+    /*##############################
+      * Public Getters
+      * ###########################*/
+    public int getSpeed()
+    {
+        return speed;
+    }
+
+    public float getDistanceTraveled()
+    {
+        return milesMoved;
+    }
+
+    /*##############################
+    * UI operations.
+    * ###########################*/
+
+    public void toggleSpeed()
+    {
+       // Debug.Log("toggling speed!");
+        if (speed == 80)
+        {
+            speed = 0;
+        }
+
+        else if (speed == 0)
+        {
+            speed = 40;
+        }
+
+        else
+        {
+            speed += 20;
+        }
+    }
+
+    /*##############################
+    * Turn operations.
+    * ###########################*/
+    public void nextTurn()
+    {
+        //there are 4 turns in a day
+        //this also can be changed to an update and turns can be set to a start/stop
+        //not sure where I am at on that design-wise
+       // Debug.Log("moved: " + speed / 4 + "miles");
+        milesMoved += speed / 4;
+
+    }
+
+
+
+
+    /*##############################
+     * Private managers for events and operations
+     * ###########################*/
 
     private void carEvent()
     {
@@ -145,7 +204,7 @@ public class CAR : MonoBehaviour
     private void nightOperations()
     {
 
-    }  
+    }
 
     private void diseaseCheck()
     {
