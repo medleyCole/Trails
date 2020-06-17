@@ -64,6 +64,7 @@ public class CAR : MonoBehaviour
     private int rationLevel;
 
     //Turn/Event Processing stuff
+    private TrailEvents trailEventManager;
     public bool hasEventReady;
         //a reference to manager so I can- like get information from it
     public GameObject managerRef;
@@ -102,6 +103,7 @@ public class CAR : MonoBehaviour
         chargingBattery = null;
 
         //event setup
+        trailEventManager = new TrailEvents();
         nextEventMile = eventMiles;
     }
 
@@ -351,7 +353,7 @@ public class CAR : MonoBehaviour
             if(milesMoved >= nextEventMile)
             {
                 Debug.Log("Event!");
-                // call a mehtod in trail events, pass in this CAR and the number of events to check (will be based on difficulty)
+                trailEventManager.rollForEvents(this, 3, .0f);
                 nextEventMile += eventMiles;
                 Debug.Log("Next event set for: " + nextEventMile);
             }

@@ -8894,7 +8894,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1719090078}
   - component: {fileID: 1719090077}
-  - component: {fileID: 1719090075}
   - component: {fileID: 1719090079}
   m_Layer: 0
   m_Name: _Manager
@@ -8903,18 +8902,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1719090075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719090074}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77ac57a85100b9045b099781d892fc10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1719090077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11357,12 +11344,12 @@ PrefabInstance:
     - target: {fileID: 2111309243343877983, guid: a4ed25e44d5fc194392d07dfc1713d19,
         type: 3}
       propertyPath: defaultFood
-      value: 4
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 2111309243343877983, guid: a4ed25e44d5fc194392d07dfc1713d19,
         type: 3}
       propertyPath: defaultMedi
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2111309243343877983, guid: a4ed25e44d5fc194392d07dfc1713d19,
         type: 3}
