@@ -42,7 +42,7 @@ public class CAR : MonoBehaviour
     private bool isBroken;
 
     //use this for event and checkpoitn calculation
-    private float eventMilesMoved;
+    private float nextEventMile;
     //the frequency at which events happen
     public int eventMiles;
 
@@ -63,13 +63,14 @@ public class CAR : MonoBehaviour
     private int speed;
     private int rationLevel;
 
-    //### Turn/Event Processing stuff
-    //a reference to manager so I can- like get information from it
+    //Turn/Event Processing stuff
+    public bool hasEventReady;
+        //a reference to manager so I can- like get information from it
     public GameObject managerRef;
+        //UI connection
     public GameObject morningReportScreen;
     public GameObject turnButton; //THIS IS EXTREMELY TEMPORARY
-    public bool hasEventReady;
-
+    
     private void Awake()
     {
         //this way of setting is very much for the prototype
@@ -99,6 +100,9 @@ public class CAR : MonoBehaviour
         batteryInUse = batteryStorage[0];
         batteryInUseIndex = 0;
         chargingBattery = null;
+
+        //event setup
+        nextEventMile = eventMiles;
     }
 
     // we are doing NOTHING with update right now
@@ -341,12 +345,16 @@ public class CAR : MonoBehaviour
 
             //benching battery management for now so I can do it in a more thoughtful way
             //I kind of wanna religate it to player control and an event based case because... it's easier.
-            if(batteryInUse.getCharge() == 0)
-            {
-                
-            }
-
             milesMoved += speed / 4;
+
+            //###EVENT CHECKING
+            if(milesMoved >= nextEventMile)
+            {
+                Debug.Log("Event!");
+                // call a mehtod in trail events, pass in this CAR and the number of events to check (will be based on difficulty)
+                nextEventMile += eventMiles;
+                Debug.Log("Next event set for: " + nextEventMile);
+            }
         }
 
     }
@@ -357,11 +365,6 @@ public class CAR : MonoBehaviour
     /*##############################
      * Private managers for events and operations
      * ###########################*/
-
-    private void carEvent()
-    {
-        //roll logic at each stop (values are ajusted to work in the jungle biome first)
-    }
 
     //functions for the individual events go here
 
