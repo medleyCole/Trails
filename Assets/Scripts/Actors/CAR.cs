@@ -32,6 +32,7 @@ public class CAR : MonoBehaviour
     public int defaultBatts;
 
     private Battery batteryInUse;
+    private int batteryInUseIndex;
     private Battery chargingBattery;
     private List<Battery> batteryStorage;
     private bool isRechargerBroken;
@@ -96,6 +97,7 @@ public class CAR : MonoBehaviour
         }
 
         batteryInUse = batteryStorage[0];
+        batteryInUseIndex = 0;
         chargingBattery = null;
     }
 
@@ -283,6 +285,67 @@ public class CAR : MonoBehaviour
         // Debug.Log("moved: " + speed / 4 + "miles");
         else
         {
+            //resource consumption
+            if (foodCount != 0)
+            {
+                foodCount -= rationLevel;
+            }
+
+            //to drain the battery it negativly recharges.... don't worry.
+            int chareOverflow = 2;
+            switch (speed)
+            {
+                case 40:
+                    if (batteryInUse.getCharge() - 1 >= 0)
+                    {
+                        batteryInUse.recharge(-1);
+                    }
+
+                    else
+                    {
+                        Debug.Log("batter change event needed");
+                    }
+
+                    break;
+
+                case 60:
+                    if(batteryInUse.getCharge() - 2 >= 0)
+                    {
+                        batteryInUse.recharge(-2);
+                    }
+
+                    else
+                    {
+                        Debug.Log("batter change event needed");
+                    }
+
+                    break;
+
+                case 80:
+                    if (batteryInUse.getCharge() - 3 >= 0)
+                    {
+                        batteryInUse.recharge(-3);
+                    }
+
+                    else
+                    {
+                        Debug.Log("batter change event needed");
+                    }
+
+                    break;
+
+                default:
+                    Debug.Log("Error in the battery degredation switch case in CAR");
+                    break;
+            }
+
+            //benching battery management for now so I can do it in a more thoughtful way
+            //I kind of wanna religate it to player control and an event based case because... it's easier.
+            if(batteryInUse.getCharge() == 0)
+            {
+                
+            }
+
             milesMoved += speed / 4;
         }
 

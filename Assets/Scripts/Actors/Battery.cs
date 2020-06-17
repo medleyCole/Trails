@@ -9,8 +9,8 @@ using UnityEngine;
 public class Battery  
 {
     //yeah this is a thing
-    public int defaultCapacity = 5;
-    public int defaultCharge = 5;
+    public int defaultCapacity = 10;
+    public int defaultCharge = 10;
 
     private int capacity;
     private int charge;
