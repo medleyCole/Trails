@@ -19,11 +19,18 @@ public class CAR : MonoBehaviour
     private struct modifires { };
 
     //resources
+    public int defaultMetal;
+    public float defaultFood;
+    public int defaultMedi;
+
     private int metalCount;
-    private int foodCount;
+    private float foodCount;
     private int mediCount;
 
+
     //battery usage
+    public int defaultBatts;
+
     private Battery batteryInUse;
     private Battery chargingBattery;
     private List<Battery> batteryStorage;
@@ -47,16 +54,49 @@ public class CAR : MonoBehaviour
     private int daysMoving;
     private int daysStopped;
 
+    public int defaultRationLevel;
+    public int defaultSpeed;
+
     //this should only ever be a whole number because I want people to not
     //have a high mental load sorting out modifier math.
     private int speed;
+    private int rationLevel;
+
+    //### Turn/Event Processing stuff
+    //a reference to manager so I can- like get information from it
+    public GameObject managerRef;
+    public GameObject morningReportScreen;
+    public GameObject turnButton; //THIS IS EXTREMELY TEMPORARY
+    public bool hasEventReady;
 
     private void Awake()
     {
         //this way of setting is very much for the prototype
         //just set some basic paramaters here
         //also manage initial customization here
+        hasEventReady = false;
 
+        //in the future, object creation will be handeld by its own window to help the player
+        //make their caravan, as of right now tho... nah.
+
+        //resource allocation
+        metalCount = defaultMetal;
+        mediCount = defaultMedi;
+        foodCount = defaultFood;
+
+        rationLevel = defaultRationLevel;
+        speed = defaultSpeed;
+
+        batteryStorage = new List<Battery>();
+        
+        //batt init
+        for(int i = 0; i < defaultBatts; i++)
+        {
+            batteryStorage.Add(new Battery());
+        }
+
+        batteryInUse = batteryStorage[0];
+        chargingBattery = null;
     }
 
     // we are doing NOTHING with update right now
@@ -151,6 +191,36 @@ public class CAR : MonoBehaviour
         return milesMoved;
     }
 
+    public float getFoodCount()
+    {
+        return foodCount;
+    }
+
+    public int getBattCount()
+    {
+        return batteryStorage.Count;
+    }
+
+    public string getBattCharge()
+    {
+        return (batteryInUse.getCharge().ToString() + "/" + batteryInUse.getCapacity().ToString());
+    }
+
+    public int getmediCount()
+    {
+        return mediCount;
+    }
+
+    public int getMetalCount()
+    {
+        return metalCount;
+    }
+
+    public int getRationLevel()
+    {
+        return rationLevel;
+    }
+
     /*##############################
     * UI operations.
     * ###########################*/
@@ -174,16 +244,47 @@ public class CAR : MonoBehaviour
         }
     }
 
+    public void toggleRationLevel()
+    {
+        // Debug.Log("toggling rations!");
+        if (rationLevel == 3)
+        {
+            rationLevel = 1;
+        }
+        else
+        {
+            rationLevel += 1;
+        }
+    }
+
     /*##############################
     * Turn operations.
     * ###########################*/
     public void nextTurn()
     {
+        //check the time, if it's 2000, don't move
+        if (managerRef.GetComponent<Time>().getHour() == 0)
+        {
+            Debug.Log("night time");
+        }
+
+        //if it's 800, show the morning report
+        else if (managerRef.GetComponent<Time>().getHour() == 400)
+        {
+            hasEventReady = true;
+            turnButton.SetActive(false);
+            morningReportScreen.SetActive(true);
+        }
+
+
         //there are 4 turns in a day
         //this also can be changed to an update and turns can be set to a start/stop
         //not sure where I am at on that design-wise
-       // Debug.Log("moved: " + speed / 4 + "miles");
-        milesMoved += speed / 4;
+        // Debug.Log("moved: " + speed / 4 + "miles");
+        else
+        {
+            milesMoved += speed / 4;
+        }
 
     }
 

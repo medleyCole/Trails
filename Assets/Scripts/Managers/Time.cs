@@ -13,6 +13,12 @@ public class Time : MonoBehaviour
     private string[] monthNames = new string[12];
     private string[] dayNames   = new string[7];
 
+    //defaults because it's easy
+    public int defaultHour;
+    public int defaultDay;
+    public int defaultMonth;
+    public int defaultDate;
+
     //the actual time
     private int hour;
     private int day;
@@ -21,11 +27,11 @@ public class Time : MonoBehaviour
 
     private void Awake()
     {
-        hour = 800;
-        day = 0;
-        date = 0;
-        month = 3;
-        
+        hour = defaultHour;
+        day = defaultDay;
+        month = defaultMonth;
+        date = defaultDate;
+
         //assign those months (we could load this from an ini later)
         monthNames[0] = "January";
         monthNames[1] = "Febuary";

@@ -7,6 +7,7 @@ TagManager:
   - CAR
   - Caravan
   - Settler
+  - Manager
   layers:
   - Default
   - TransparentFX
