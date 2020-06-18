@@ -8,7 +8,7 @@ public class CAR : MonoBehaviour
 {
     //going to declare members a la c++ for conventions sake
     //settlers
-    private Settler[] settlers;
+    private List<GameObject> settlerList;
     //the order of settlers by profession here is: Ecologist, Electrician, Mechanic, Doctor
     private int[] professionCount = new int[4];
 
@@ -73,16 +73,11 @@ public class CAR : MonoBehaviour
     public GameObject turnButton; //THIS IS EXTREMELY TEMPORARY
     
     private void Awake()
-    {
-        //this way of setting is very much for the prototype
-        //just set some basic paramaters here
-        //also manage initial customization here
-        hasEventReady = false;
-
+    {              
         //in the future, object creation will be handeld by its own window to help the player
         //make their caravan, as of right now tho... nah.
 
-        //resource allocation
+        //##resource allocation
         metalCount = defaultMetal;
         mediCount = defaultMedi;
         foodCount = defaultFood;
@@ -92,7 +87,7 @@ public class CAR : MonoBehaviour
 
         batteryStorage = new List<Battery>();
         
-        //batt init
+        //##batt init
         for(int i = 0; i < defaultBatts; i++)
         {
             batteryStorage.Add(new Battery());
@@ -102,9 +97,22 @@ public class CAR : MonoBehaviour
         batteryInUseIndex = 0;
         chargingBattery = null;
 
-        //event setup
+        //##event setup
         trailEventManager = new TrailEvents();
         nextEventMile = eventMiles;
+        hasEventReady = false;
+
+        //##settle into list
+        settlerList = new List<GameObject>();
+        foreach(Transform obj in this.transform)
+        {
+            if (obj.tag == "Settler")
+            {
+                settlerList.Add(obj.gameObject);
+            }
+        }
+
+        Debug.Log("added " + settlerList.Count + " settlers to settlerList.");
     }
 
     // we are doing NOTHING with update right now
@@ -227,6 +235,11 @@ public class CAR : MonoBehaviour
     public int getRationLevel()
     {
         return rationLevel;
+    }
+
+    public Settler getSettlerFromList(int index)
+    {
+        return settlerList[index].GetComponent<Settler>();
     }
 
     /*##############################

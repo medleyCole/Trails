@@ -23,7 +23,10 @@ public class Settler : MonoBehaviour
 
     private void Awake()
     {
+
         //default assignments
+        characterName = "testName";
+
         isSick = false;
         daysSick = 0;
 
@@ -46,34 +49,34 @@ public class Settler : MonoBehaviour
         switch (prof)
         {
             case 0:
-             profession = "Ecologist";
-            //sets food/day to plus 4
-            //(for the ini, you could feed values here)
-            //maybe this should modify animal handeling more?
-            stats[0] += 4;
-            break;
+                profession = "Ecologist";
+                //sets food/day to plus 4
+                //(for the ini, you could feed values here)
+                //maybe this should modify animal handeling more?
+                stats[0] += 4;
+                break;
 
             case 1:
-            profession = "Electrician";
-            //bat recharge increased for group
-            stats[2] += 2;
-            break;
+                profession = "Electrician";
+                //bat recharge increased for group
+                stats[2] += 2;
+                break;
 
             case 2:
-            profession = "Mechanic";
-            //repair chance for group increased by %
-            stats[3] += (float)0.1;
-            break;
+                profession = "Mechanic";
+                //repair chance for group increased by %
+                stats[3] += (float)0.1;
+                break;
 
             case 3:
-            profession = "Doctor";
-            //heal chance for group increased by %
-            stats[4] += (float)0.1;
-            break;
+                profession = "Doctor";
+                //heal chance for group increased by %
+                stats[4] += (float)0.1;
+                break;
 
             default:
-            Debug.Log("1st switch f'd up in settler awake method");
-            break;
+                Debug.Log("1st switch f'd up in settler awake method");
+                break;
         }
 
         //roll for each trait which will come from an instance of settler traits so it doesn't have to exist all the time here
@@ -119,10 +122,10 @@ public class Settler : MonoBehaviour
                     traits[i] = "Bad with tools";
                     //repair chance down %
                     stats[3] -= 05f;
-                    break; 
+                    break;
 
                 case 6:
-                    traits[i] = "First-Aid Certified";
+                    traits[i] = "Knows First-Aid";
                     //heal chance for group up %
                     stats[4] += .05f;
                     break;
@@ -134,8 +137,8 @@ public class Settler : MonoBehaviour
                     break;
 
                 default:
-                Debug.Log("2nd switch f'd up in settler awake method");
-                break;
+                    Debug.Log("2nd switch f'd up in settler awake method");
+                    break;
             }
 
         }
@@ -152,4 +155,36 @@ public class Settler : MonoBehaviour
     {
         daysSick++;
     }
+
+    //###getters
+    public string getName()
+    {
+        return name;
+    }
+
+    public string getProfession()
+    {
+        return profession;
+    }
+
+    public string getTrait1()
+    {
+        return traits[0];
+    }
+
+    public string getTrait2()
+    {
+        return traits[1];
+    }
+
+    public bool getIsSick()
+    {
+        return isSick;
+    }
+
+    public bool getIsInjured()
+    {
+        return isInjured;
+    }
+
 }

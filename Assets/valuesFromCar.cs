@@ -15,11 +15,17 @@ public class valuesFromCar : MonoBehaviour
     public TMPro.TextMeshProUGUI speedText;
     public TMPro.TextMeshProUGUI rationText;
 
+    public GameObject settlerUI0;
+    public GameObject settlerUI1;
+    public GameObject settlerUI;
+    public GameObject settlerUI3;
+
     //also move speed, ration level, distance travel and next landmark here
 
     private void Awake()
     {
         //set the defaults
+        //###Stats
         food.text = selectedCar.getFoodCount().ToString();
         battNum.text = selectedCar.getBattCount().ToString();
         battCharge.text = selectedCar.getBattCharge();
@@ -27,6 +33,9 @@ public class valuesFromCar : MonoBehaviour
         metalNum.text = selectedCar.getMetalCount().ToString();
         speedText.text = selectedCar.GetComponent<CAR>().getSpeed().ToString();
         rationText.text = selectedCar.GetComponent<CAR>().getRationLevel().ToString();
+
+        //###Settlers
+
     }
 
     //updates for the buttons on the ui to call

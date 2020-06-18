@@ -8,6 +8,7 @@ TagManager:
   - Caravan
   - Settler
   - Manager
+  - SettlerUI
   layers:
   - Default
   - TransparentFX
