@@ -65,13 +65,13 @@ public class Settler : MonoBehaviour
             case 2:
                 profession = "Mechanic";
                 //repair chance for group increased by %
-                stats[3] += (float)0.1;
+                stats[3] += 0.1f;
                 break;
 
             case 3:
                 profession = "Doctor";
                 //heal chance for group increased by %
-                stats[4] += (float)0.1;
+                stats[4] += 0.1f;
                 break;
 
             default:
@@ -87,13 +87,13 @@ public class Settler : MonoBehaviour
             {
                 case 0:
                     traits[i] = "Eats a lot";
-                    //food expend up +1/day
+                    //food expend up +1/turn
                     stats[0] += 1;
                     break;
 
                 case 1:
                     traits[i] = "Eats little";
-                    //food expend down +1/day
+                    //food expend down +1/turn
                     stats[0] -= 1;
                     break;
 
@@ -108,7 +108,7 @@ public class Settler : MonoBehaviour
 
                 case 3:
                     traits[i] = "Leaves Light On";
-                    //energy expendature up +1/day
+                    //energy expendature up +1/turn
                     stats[1] += 1;
                     break;
 
@@ -160,6 +160,11 @@ public class Settler : MonoBehaviour
     public string getName()
     {
         return name;
+    }
+
+    public float[] getStats()
+    {
+        return stats;
     }
 
     public string getProfession()

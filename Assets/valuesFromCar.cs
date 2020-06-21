@@ -26,13 +26,7 @@ public class valuesFromCar : MonoBehaviour
     {
         //set the defaults
         //###Stats
-        food.text = selectedCar.getFoodCount().ToString();
-        battNum.text = selectedCar.getBattCount().ToString();
-        battCharge.text = selectedCar.getBattCharge();
-        mediNum.text = selectedCar.getmediCount().ToString();
-        metalNum.text = selectedCar.getMetalCount().ToString();
-        speedText.text = selectedCar.GetComponent<CAR>().getSpeed().ToString();
-        rationText.text = selectedCar.GetComponent<CAR>().getRationLevel().ToString();
+        turnUpdate();
 
         //###Settlers
 

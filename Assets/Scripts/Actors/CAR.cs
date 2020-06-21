@@ -9,9 +9,9 @@ public class CAR : MonoBehaviour
     //going to declare members a la c++ for conventions sake
     //settlers
     private List<GameObject> settlerList;
-    //the order of settlers by profession here is: Ecologist, Electrician, Mechanic, Doctor
-    private int[] professionCount = new int[4];
+    private float[] stats = new float[6];
 
+    //module
     private string module;
     private bool isModuleBroken;
 
@@ -73,9 +73,47 @@ public class CAR : MonoBehaviour
     public GameObject turnButton; //THIS IS EXTREMELY TEMPORARY
     
     private void Awake()
-    {              
+    {
         //in the future, object creation will be handeld by its own window to help the player
         //make their caravan, as of right now tho... nah.
+
+        //##settle into list
+        settlerList = new List<GameObject>();
+        foreach (Transform obj in this.transform)
+        {
+            if (obj.tag == "Settler")
+            {
+                settlerList.Add(obj.gameObject);
+            }
+        }
+
+        Debug.Log("added " + settlerList.Count + " settlers to settlerList.");
+
+        //##Stat assignment
+        for (int i = 0; i < 6; i++)
+        {
+            stats[i] = 0;
+        }
+
+        for (int i = 0; i < settlerList.Count; i++)
+        {
+            float[] tempSettlerStats = new float[6];
+            tempSettlerStats = settlerList[i].GetComponent<Settler>().getStats();
+            for(int j= 0; j < 6; j++)
+            {
+                Debug.Log("temp stat " + j + "for settler " + i + ": " + tempSettlerStats[j]);
+                stats[j] += tempSettlerStats[j];
+                Debug.Log("current car stat " + j + ": " + stats[j]);
+            }
+        }
+
+        //debug
+        Debug.Log("Stats: ");
+        for(int i = 0; i < 6; i++)
+        {
+            Debug.Log(stats[i]);
+        }
+        
 
         //##resource allocation
         metalCount = defaultMetal;
@@ -102,17 +140,7 @@ public class CAR : MonoBehaviour
         nextEventMile = eventMiles;
         hasEventReady = false;
 
-        //##settle into list
-        settlerList = new List<GameObject>();
-        foreach(Transform obj in this.transform)
-        {
-            if (obj.tag == "Settler")
-            {
-                settlerList.Add(obj.gameObject);
-            }
-        }
-
-        Debug.Log("added " + settlerList.Count + " settlers to settlerList.");
+        
     }
 
     // we are doing NOTHING with update right now
@@ -197,6 +225,11 @@ public class CAR : MonoBehaviour
     /*##############################
       * Public Getters
       * ###########################*/
+    public float[] getStats()
+    {
+        return stats;
+    }
+
     public int getSpeed()
     {
         return speed;
