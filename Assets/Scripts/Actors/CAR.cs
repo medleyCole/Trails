@@ -4,6 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//This class is what constitutes a CAR object in the game.
+//IT has a list of settler,s logic to determine resources and how they're used
+//and it also knows when it needs to check events
+//the GameManager has a lsit of these cars and knows from when an event is active to od things to ui
+//otherwise, the CAR knows how to call in the UI base don the event it as gotten via the event class
 public class CAR : MonoBehaviour
 {
     //going to declare members a la c++ for conventions sake
@@ -87,7 +92,7 @@ public class CAR : MonoBehaviour
             }
         }
 
-        Debug.Log("added " + settlerList.Count + " settlers to settlerList.");
+        //Debug.Log("added " + settlerList.Count + " settlers to settlerList.");
 
         //##Stat assignment
         for (int i = 0; i < 6; i++)
@@ -101,18 +106,20 @@ public class CAR : MonoBehaviour
             tempSettlerStats = settlerList[i].GetComponent<Settler>().getStats();
             for(int j= 0; j < 6; j++)
             {
-                Debug.Log("temp stat " + j + "for settler " + i + ": " + tempSettlerStats[j]);
+               // Debug.Log("temp stat " + j + "for settler " + i + ": " + tempSettlerStats[j]);
                 stats[j] += tempSettlerStats[j];
-                Debug.Log("current car stat " + j + ": " + stats[j]);
+               // Debug.Log("current car stat " + j + ": " + stats[j]);
             }
         }
 
-        //debug
+        //debug 
+        /*
         Debug.Log("Stats: ");
         for(int i = 0; i < 6; i++)
         {
             Debug.Log(stats[i]);
-        }
+
+        } */
         
 
         //##resource allocation
@@ -268,6 +275,11 @@ public class CAR : MonoBehaviour
     public int getRationLevel()
     {
         return rationLevel;
+    }
+
+    public bool getHasEventActive()
+    {
+        return hasEventReady;
     }
 
     public Settler getSettlerFromList(int index)

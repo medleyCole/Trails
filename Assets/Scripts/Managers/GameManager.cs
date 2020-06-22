@@ -2,24 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Manager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     //this is a reference to its parent because 'transform.parent' is akward and it's literaly JUST a reference
     //also it means I can just move this script wherever which is baller
-    public GameObject managerObject;
+    public CAR existingCAR;
+    public GameObject UIScreen;
+    public UIGroupManager UIManager;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        //you need to have 4 settlers. 
-        //you need to let the player select their gear and a cargo.
-
+        Debug.Log("manager up!");
+        //super temporary
+        Debug.Log("Manager car food: " + existingCAR.getFoodCount());       
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (existingCAR.getHasEventActive())
+        {
+            UIManager.toggleTurnButton(false);
+        }
     }
 
 
