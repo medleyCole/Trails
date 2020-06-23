@@ -35,7 +35,6 @@ public class CAR : MonoBehaviour
 
     //battery usage
     public int defaultBatts;
-
     private Battery batteryInUse;
     private int batteryInUseIndex;
     private Battery chargingBattery;
@@ -45,35 +44,40 @@ public class CAR : MonoBehaviour
     //moving logic
     private bool isMoving;
     private bool isBroken;
-
-    //use this for event and checkpoitn calculation
-    private float nextEventMile;
-    //the frequency at which events happen
-    public int eventMiles;
-
     private float milesMoved;
     private int checkpointMiles;
     
-
     //keeps track of consecutive days. we need this data for
     //math regarding disease rolls. used agains settler;s daysSick
     private int daysMoving;
     private int daysStopped;
-
     public int defaultRationLevel;
     public int defaultSpeed;
 
-    //this should only ever be a whole number because I want people to not
-    //have a high mental load sorting out modifier math.
+    //Toggleable levels
     private int speed;
     private int rationLevel;
 
     //Turn/Event Processing stuff
+    //use this for event and checkpoitn calculation
+    public int eventsPerCheckpoint;
+    private float nextEventMile;
+    //the frequency at which events happen
+    public int eventMiles;
+    //reference to trailEventObject for calling events
     private TrailEvents trailEventManager;
+    //composing text to send to UIGroupManager for window calls
+    private string[,] intervalEventText;
+    //logic used to tell game manager what to do with the turn button
     public bool hasEventReady;
-        //a reference to manager so I can- like get information from it
+    private int numEventsActive;
+    private int numEventsClosed;
+
+    //a reference to manager so I can- like get information from it
     public GameObject managerRef;
-        //UI connection
+
+    //UI connection
+    public GameObject UIManager;
     public GameObject morningReportScreen;
     public GameObject turnButton; //THIS IS EXTREMELY TEMPORARY
     
@@ -92,8 +96,6 @@ public class CAR : MonoBehaviour
             }
         }
 
-        //Debug.Log("added " + settlerList.Count + " settlers to settlerList.");
-
         //##Stat assignment
         for (int i = 0; i < 6; i++)
         {
@@ -111,29 +113,17 @@ public class CAR : MonoBehaviour
                // Debug.Log("current car stat " + j + ": " + stats[j]);
             }
         }
-
-        //debug 
-        /*
-        Debug.Log("Stats: ");
-        for(int i = 0; i < 6; i++)
-        {
-            Debug.Log(stats[i]);
-
-        } */
-        
-
+   
         //##resource allocation
         metalCount = defaultMetal;
         mediCount = defaultMedi;
         foodCount = defaultFood;
-
         rationLevel = defaultRationLevel;
         speed = defaultSpeed;
 
-        batteryStorage = new List<Battery>();
-        
         //##batt init
-        for(int i = 0; i < defaultBatts; i++)
+        batteryStorage = new List<Battery>();
+        for (int i = 0; i < defaultBatts; i++)
         {
             batteryStorage.Add(new Battery());
         }
@@ -146,43 +136,22 @@ public class CAR : MonoBehaviour
         trailEventManager = new TrailEvents();
         nextEventMile = eventMiles;
         hasEventReady = false;
-
-        
+        numEventsActive = 0;
     }
 
-    // we are doing NOTHING with update right now
-  /*  private void Update()
+    // we are doing NOTHING with update right now accept dealing with event windows etc
+    private void Update()
     {
-        //move and event stuff
-
-        //per tick:
-        //log the amount you've'd move
-        milesMoved += speed / 12;
-        eventMilesMoved += speed / 12;
-
-        if (eventMilesMoved >= eventMiles)
+        if(hasEventReady)
         {
-            eventMilesMoved = eventMilesMoved - eventMiles;
-            //play the event here
+            if(numEventsActive == 0)
+            {
+                Debug.Log("No events active!");
+                hasEventReady = false;
+                managerRef.GetComponent<GameManager>().eventsGone(true);
+            }
         }
-
-        if (milesMoved >= checkpointMiles)
-        {
-            milesMoved = checkpointMiles;
-            //assign checkpointMiles to the next one in the array that's..... somewhere
-            //do the checkpoint event that's also... somewhere
-        }
-
-        //once that day is over, do your health and medical stuff.
-
-        //for breaking down later: if you break down and fail to repair, mmediatly go to night
-        //do those calculations then try another repair
-    } */
-
-    //these functions are called by events in updated to manage uhh stuff
-    //ideally there would be a seperate manager so multiple cars can reference it
-    //realistically, this is a prototype and I'm a dumb ass. so 1 car, 1 event manager, works.
-
+    } 
 
     /*##############################
       * Public Setters
@@ -227,6 +196,12 @@ public class CAR : MonoBehaviour
     {
         isRechargerBroken = broken;
         return;
+    }
+
+    public void decrimentNumEventsActive(int num)
+    {
+        numEventsActive -= num;
+        Debug.Log("events active now: " + numEventsActive);
     }
 
     /*##############################
@@ -338,7 +313,7 @@ public class CAR : MonoBehaviour
         else if (managerRef.GetComponent<Time>().getHour() == 400)
         {
             hasEventReady = true;
-            turnButton.SetActive(false);
+            numEventsActive = 1;
             morningReportScreen.SetActive(true);
         }
 
@@ -356,7 +331,6 @@ public class CAR : MonoBehaviour
             }
 
             //to drain the battery it negativly recharges.... don't worry.
-            int chareOverflow = 2;
             switch (speed)
             {
                 case 40:
@@ -410,24 +384,33 @@ public class CAR : MonoBehaviour
             //###EVENT CHECKING
             if(milesMoved >= nextEventMile)
             {
+                //we're doing a double array with variable dimensions
+                //the trail event script also builds its text array the same way but do be careful
                 Debug.Log("Event!");
-                trailEventManager.rollForEvents(this, 3, .0f);
+                hasEventReady = true;
+                numEventsActive = eventsPerCheckpoint;
+                intervalEventText = trailEventManager.rollForEvents(this, eventsPerCheckpoint, .0f);
                 nextEventMile += eventMiles;
-                Debug.Log("Next event set for: " + nextEventMile);
+
+                
+
+                //checking to see if array builds via debug before differing to the UI manager:
+                for(int i = 0; i < eventsPerCheckpoint; i++)
+                {
+                    Debug.Log(intervalEventText[i, 0]);
+                    Debug.Log(intervalEventText[i, 1]);
+                    UIManager.GetComponent<UIGroupManager>().callEvent(intervalEventText[i, 0], intervalEventText[i, 1], this);
+                }
             }
         }
 
     }
 
 
-
-
     /*##############################
-     * Private managers for events and operations
+     * Calls to do routine events
      * ###########################*/
-
     //functions for the individual events go here
-
     private void nightOperations()
     {
 
@@ -437,5 +420,4 @@ public class CAR : MonoBehaviour
     {
 
     }
-
 }

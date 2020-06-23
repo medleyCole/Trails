@@ -8,25 +8,32 @@ public class GameManager : MonoBehaviour
     //also it means I can just move this script wherever which is baller
     public CAR existingCAR;
     public GameObject UIScreen;
-    public UIGroupManager UIManager;
 
     // Start is called before the first frame update
     void Awake()
     {
-        Debug.Log("manager up!");
-        //super temporary
-        Debug.Log("Manager car food: " + existingCAR.getFoodCount());       
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(existingCAR.getHasEventActive());
         if (existingCAR.getHasEventActive())
         {
-            UIManager.toggleTurnButton(false);
+            UIScreen.GetComponent<UIGroupManager>().toggleTurnButton(false);
         }
     }
 
+    public void incrementSelectedCarEventCounter()
+    {
+        existingCAR.decrimentNumEventsActive(1);
+    }
+
+    public void eventsGone(bool gone)
+    {
+        UIScreen.GetComponent<UIGroupManager>().toggleTurnButton(gone);
+    }
 
 
 

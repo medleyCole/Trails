@@ -23,10 +23,18 @@ public class UIGroupManager : MonoBehaviour
         turnButton.SetActive(toggleTo);
     }
 
-    public void callEvent(string name, string text)
+    //A CAR object will look through the list of events it got from TrailEvents and ask this UI manager
+    //to make an event window for each. 
+    //event windows keep a reference to the CAR object so the CAr can check if there are any of them active.
+    //the car knows how many are out and how many left need to close. this is how it tells the manager
+    //weather or not it can show the turn button. (or, in the future, weather or not the turn button takes you to a CAR instead)
+    public void callEvent(string name, string text, CAR askingCar)
     {
-        eventPanel.transform.Find("EventName").GetComponent<TMPro.TextMeshProUGUI>().text = name;
-        eventTitle.text = name;
-        eventText.text = text;     
+        GameObject newPanel = Instantiate(eventPanel, this.transform);
+        newPanel.SetActive(true);
+
+        newPanel.transform.Find("EventName").GetComponent<TMPro.TextMeshProUGUI>().text = name;
+        newPanel.transform.Find("DescriptionText").GetComponent<TMPro.TextMeshProUGUI>().text = text;
+        newPanel.transform.SetParent(this.transform);
     }
 }
