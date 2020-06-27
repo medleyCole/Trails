@@ -6,7 +6,7 @@ using UnityEngine;
 //this is a very easy thing to keep track of
 
 
-public class Battery  
+/*public class Battery  
 {
     //yeah this is a thing
     public int defaultCapacity = 10;
@@ -43,3 +43,4 @@ public class Battery
         return charge;
     }
 }
+*/

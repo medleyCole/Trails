@@ -14,7 +14,9 @@ public class Settler : MonoBehaviour
 
     //disease
     private bool isSick;
-    private int daysSick;
+    private float daysSickMod;
+    private float daysSickMovingMod;
+    private float daysSickNotMovingMod;
 
     //injury
     //note, the current game doesn't have injury
@@ -28,7 +30,7 @@ public class Settler : MonoBehaviour
         characterName = "testName";
 
         isSick = false;
-        daysSick = 0;
+        daysSickMod = 0;
 
         isInjured = false;
         daysInjured = 0;
@@ -151,11 +153,6 @@ public class Settler : MonoBehaviour
         isSick = sick;
     }
 
-    public void addDaysSick()
-    {
-        daysSick++;
-    }
-
     //###getters
     public string getName()
     {
@@ -191,5 +188,18 @@ public class Settler : MonoBehaviour
     {
         return isInjured;
     }
+    //##Inrementers 
+    public void incrementDaysSickMoving()
+    {
+        daysSickMovingMod += 1.25f;
+        daysSickMod += 1.25f;
+    }
+
+    public void incrementDaysSickNotMoving()
+    {
+        daysSickNotMovingMod += 1.25f;
+        daysSickMod += 1.25f;
+    }
+    //##Setters
 
 }

@@ -10,6 +10,7 @@ public class UIGroupManager : MonoBehaviour
 {
     public GameObject turnButton;
     public GameObject eventPanel;
+    public GameObject carInfo;
 
     //I'm so fucking stupid but we're hitting this with our gucci on
     //Event window stuff
@@ -36,5 +37,10 @@ public class UIGroupManager : MonoBehaviour
         newPanel.transform.Find("EventName").GetComponent<TMPro.TextMeshProUGUI>().text = name;
         newPanel.transform.Find("DescriptionText").GetComponent<TMPro.TextMeshProUGUI>().text = text;
         newPanel.transform.SetParent(this.transform);
+    }
+
+    public void refreshCarInfo()
+    {
+        carInfo.GetComponent<valuesFromCar>().turnUpdate();
     }
 }

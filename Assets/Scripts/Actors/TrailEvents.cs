@@ -5,6 +5,7 @@ using UnityEngine;
 public class TrailEvents 
 {
     private List<int> eventCheckingList = new List<int>();
+    //the number of event functions that can be called on
     private int numEventFunctions = 9;
     //these will all be functions that get passed a car object reference and end up doing soemthing to them
     
@@ -13,23 +14,35 @@ public class TrailEvents
     //each event insularly handles the probability checks and (will evetnually handle) mutual exclusivity 
     //ideally in the future, we differ this work to a generic function
     //but this isn't the future 
-    public string[,] rollForEvents(CAR targetCar, int numToCheck, float checkpointScale)
+    
+    //please make this returna  list of string arrays instead
+    public List<string[]> rollForEvents(CAR targetCar, int numToCheck, float checkpointScale)
     {
-        string[,] eventText = new string[numToCheck,2];
+        List<string[]> eventTextList = new List<string[]>();
         //###picking which events to do
 
         //most likely case
-        if (numToCheck < numEventFunctions)
+        //this should always be true given checking for 2 and 3
+        //if (numToCheck < numEventFunctions)
+        if (true) 
         {
             //Debug.Log("Event script wants to check " + numToCheck + " events.");
+            //this block randomly will add a number 0 - number of event functions to a list
+            //we then will remove ints from that list as we roll on the corresponding events they represent
+            //so basically we say "check1 2 3" as long as that list has numbers in it and remove them as we go
             int tryAdding = 0;
             while (eventCheckingList.Count < numToCheck)
             {
-                tryAdding = (int)Random.Range(0, numEventFunctions);
-                if(!eventCheckingList.Contains(tryAdding))
-                {
+                //for all events use this line:
+                //tryAdding = (int)Random.Range(0, numEventFunctions);
+
+                //for literally just the events I have muse this line:
+                tryAdding = (int)Random.Range(2, 4);
+                //getting rid of this if case since we're running 3 events with repeats (and that's fine) and don't nedd an if statement
+                //if (!eventCheckingList.Contains(tryAdding))
+               // {
                     eventCheckingList.Add(tryAdding);
-                }
+               // }
             }
             //Debug.Log("Event script is checking" + eventCheckingList.Count + " events.");
         }
@@ -53,90 +66,134 @@ public class TrailEvents
         //###Actually Doing the events (I know it's ugly)
         //this should be in a for loop but an iterator variable outside of a while is just the same
         //just understand that's why we have an i: I'm just lazy and won't switch the While to a For.
+
+        //This while loop passes back the text for an event back to car to call UI manger with
+        //it then calls for the actual event to be applied to the car itself
         int i = 0;
         while (eventCheckingList.Count > 0)
-        {          
-            Debug.Log("running event " + eventCheckingList[0]);
+        {
             switch (eventCheckingList[0])
             {
                 case 0:
                     {
-                        eventText[i,0] = "Breakdown";
-                        eventText[i,1] = "Your carvan is unable to move until repair.";
-                        i++;
-                        breakdownEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            //###example of how to do the listbased method
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Breakdown";
+                            eventTextTemp[1] = "Your carvan is unable to move until repair.";
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            breakdownEvent(ref targetCar);
+                        }
                         break;
                     }
 
                 case 1:
                     {
-                        eventText[i,0] = "Lost";
-                        eventText[i,1] = "You lose time finding your way back to the trail";
-                        i++;
-                        lostEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Lost";
+                            eventTextTemp[1] = "You lose time finding your way back to the trail";
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            lostEvent(ref targetCar);
+                        }
                         break;
                     }
 
                 case 2:
                     {
-                        eventText[i,0] = "Found a resource";
-                        eventText[i,1] = "This text isn't formatted yet";
-                        i++;
-                        findResourceEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            //have the find reosurce method return formatted text based on what is discovered AND do operation`
+                            string[] eventTextTemp = findResourceEvent(ref targetCar); ;
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            
+                        }
                         break;
                     }
 
                 case 3:
                     {
-                        eventText[i,0] = "Lost a Resource";
-                        eventText[i,1] = "This text isn't formatted yet";
-                        i++;
-                        loseResourceEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = loseResourceEvent(ref targetCar); 
+                            eventTextList.Add(eventTextTemp);
+                            i++;                          
+                        }
                         break;
                     }
 
                 case 4:
                     {
-                        eventText[i,0] = "Animal attack!";
-                        eventText[i,1] = "Man this event will sure be scary when it works";
-                        i++;
-                        animalAttackEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Animal attack!";
+                            eventTextTemp[1] = "Man this event will sure be scary when it works";
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            animalAttackEvent(ref targetCar);
+                        }
                         break;
                     }
 
                 case 5:
                     {
-                        eventText[i, 0] = "Animal Tame!";
-                        eventText[i, 1] = "This exists.";
-                        i++;
-                        animalTameEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Animal Tame!";
+                            eventTextTemp[1] = "This exists.";
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            animalTameEvent(ref targetCar);
+                        }
                         break;
                     }
 
                 case 6:
                     {
-                        eventText[i,0] = "Module broken!";
-                        eventText[i,1] = "Your module won't have an effect until it's repaired.";
-                        i++;
-                        moduleBreakEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Module broken!";
+                            eventTextTemp[1] = "Your module won't have an effect until it's repaired.";
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            moduleBreakEvent(ref targetCar);
+                        }
                         break;
                     }
 
                 case 7:
                     {
-                        eventText[i,0] = "Recharger broke!";
-                        eventText[i,1] = "Your batteries won't recharge until your recharger is repaired.";
-                        i++;
-                        rechargeBreakEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Recharger broke!";
+                            eventTextTemp[1] = "Your batteries won't recharge until your recharger is repaired.";
+                            eventTextList.Add(eventTextTemp);
+                            i++;
+                            rechargeBreakEvent(ref targetCar);
+                        }
                         break;
                     }
 
                 case 8:
                     {
-                        eventText[i,0] = "Recharge Boost";
-                        eventText[i,1] = "Get a bost to your recharging battery!";
-                        i++;
-                        rechargeBoostEvent(ref targetCar);
+                        if (rolld100() <= 12)
+                        {
+                            string[] eventTextTemp = new string[2];
+                            eventTextTemp[0] = "Recharge Boost";
+                            eventTextTemp[1] = "Get a bost to your recharging battery!";
+                            i++;
+                            eventTextList.Add(eventTextTemp);
+                            rechargeBoostEvent(ref targetCar);
+                        }
                         break;
                     }
 
@@ -148,15 +205,13 @@ public class TrailEvents
             }
             eventCheckingList.RemoveAt(0);
         }
-        return eventText;
+        return eventTextList;
     }
 
     //breakdown
     public void breakdownEvent(ref CAR targetCar)
     {
-        //message that you broke down
         targetCar.setIsBroken(true);
-        //Debug.Log("Breakdown!");
         return;
     }
 
@@ -166,37 +221,74 @@ public class TrailEvents
         //message that you got lost
         //increment the game time here but don't move the car
         //Debug.Log("lost!");
+        
+        //advance time by 1d4, could I just grab the turn button function?
         return;
     }
 
     //find a resource
-    public void findResourceEvent(ref CAR targetCar)
+    public string[] findResourceEvent(ref CAR targetCar)
     {
-        //roll for a resource, for now we're using the jungle values
-        //give it to the car
-        //Debug.Log("found resource");
-        return;
+        //roll a d4, give 1/4 crate's worth to the player (arbitrary rn)
+        if (rolld4() == 1)
+        {
+            targetCar.addFood(16);
+            return new string[] { "Find Food", "You found 16 food." };
+        }
+
+        else if (rolld4() == 2)
+        {
+            targetCar.addBatteryCapacity(3);
+            return new string[] { "Find Batt Capacity", "You found a way to increase your battery capacity." };
+        }
+
+        else if (rolld4() == 3)
+        {
+            targetCar.addMedi(1);
+            return new string[] { "Find Medi", "You found a box of medical supplies." };
+        }
+
+        else
+        {
+            targetCar.addMetal(1);
+            return new string[] { "Find Metal", "You found a box of metal." };
+        }
     }
 
     //lose a resource
-    public void loseResourceEvent(ref CAR targetCar)
+    public string[] loseResourceEvent(ref CAR targetCar)
     {
-        //roll for a resource, for now we're using the jungle values
-        //take it from the car
-        //Debug.Log("lost resource!");
-        return;
+        //roll a d4, remove some arbitrary amount of a resource from player
+        if(rolld4() == 1)
+        {
+            targetCar.addFood((int) (0-(targetCar.getFoodCount() * .15)));
+            return new string[] { "Lose Food", "You lost " + targetCar.getFoodCount() * .15 + " food." };
+        }
+
+        else if (rolld4() == 2)
+        {
+            targetCar.addBatteryCapacity(-1);
+            return new string[] { "Lose Batt Capacity", "Your battery got perminately damaged." };
+        }
+
+        else if (rolld4() == 3)
+        {
+            targetCar.addMedi(-1);
+            return new string[] { "Lose Medi", "You lost a box of medical supplies." };
+        }
+
+        else
+        {
+            targetCar.addMetal(-1);
+            return new string[] { "Lose Metal", "You lost a box of metal." };
+        }
     }
 
     //animal attack
     //this one is actually really complicate it you might wanna come back to it later
     public void animalAttackEvent(ref CAR targetCar)
     {
-        //pull up the screen that asks the players to commit settlers
-        //once they confirm roll dice
-        //resolve it
-        //give food or injuries
-        //move on
-        //Debug.Log("animal attack!");
+        //50% - animal handeling that a settler gets injured
         return;
     }
 
@@ -204,11 +296,7 @@ public class TrailEvents
     //this one is ALSO actually really complicate it you might wanna come back to it later
     public void animalTameEvent(ref CAR targetCar)
     {
-        //pull up the screen that asks the players to commit settlers
-        //once they confirm roll dice
-        //resolve it
-        //give animal or not
-        //move on
+       //50% + animal handeling that player get a +1 to ration gain
        // Debug.Log("animal tame");
         return;
     }
@@ -241,5 +329,16 @@ public class TrailEvents
         //show that message
         //Debug.Log("charge boost");
         return;
+    }
+
+    //dice
+    private int rolld100()
+    {
+        return (int)Random.Range(1, 100);
+    }
+
+    private int rolld4()
+    {
+        return (int)Random.Range(1, 4);
     }
 }

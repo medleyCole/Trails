@@ -21,7 +21,12 @@ public class GameManager : MonoBehaviour
         //Debug.Log(existingCAR.getHasEventActive());
         if (existingCAR.getHasEventActive())
         {
-            UIScreen.GetComponent<UIGroupManager>().toggleTurnButton(false);
+            eventsGone(false);
+        }
+
+        else
+        {
+            eventsGone(true);
         }
     }
 

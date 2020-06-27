@@ -25,20 +25,18 @@ public class CAR : MonoBehaviour
 
     //resources
     public int defaultMetal;
-    public float defaultFood;
+    public int defaultFood;
     public int defaultMedi;
 
     private int metalCount;
-    private float foodCount;
+    private int foodCount;
     private int mediCount;
 
 
     //battery usage
     public int defaultBatts;
-    private Battery batteryInUse;
-    private int batteryInUseIndex;
-    private Battery chargingBattery;
-    private List<Battery> batteryStorage;
+    private int batteryCharge;
+    private int batteryCapacity;
     private bool isRechargerBroken;
 
     //moving logic
@@ -46,6 +44,9 @@ public class CAR : MonoBehaviour
     private bool isBroken;
     private float milesMoved;
     private int checkpointMiles;
+
+    //is this what I really wanna do? is there a more mathier way to do this? it's a +.05 maybe just do +.0125 per move still or moving
+    private int movedYesterday;
     
     //keeps track of consecutive days. we need this data for
     //math regarding disease rolls. used agains settler;s daysSick
@@ -67,11 +68,19 @@ public class CAR : MonoBehaviour
     //reference to trailEventObject for calling events
     private TrailEvents trailEventManager;
     //composing text to send to UIGroupManager for window calls
-    private string[,] intervalEventText;
+    private List<string[]> intervalEventText;
     //logic used to tell game manager what to do with the turn button
     public bool hasEventReady;
     private int numEventsActive;
     private int numEventsClosed;
+
+    //medical event stuff
+    private int rationScore;   //used for braeting, incrimented by ration level every turn, reset in morning
+    private sickCheck medicalChecks;
+    private List<string[]> sickList;
+    private List<string[]> diedFromSickList;
+    private List<string[]> curedList;
+    private List<string[]> spreadSickList;
 
     //a reference to manager so I can- like get information from it
     public GameObject managerRef;
@@ -122,40 +131,252 @@ public class CAR : MonoBehaviour
         speed = defaultSpeed;
 
         //##batt init
-        batteryStorage = new List<Battery>();
-        for (int i = 0; i < defaultBatts; i++)
-        {
-            batteryStorage.Add(new Battery());
-        }
-
-        batteryInUse = batteryStorage[0];
-        batteryInUseIndex = 0;
-        chargingBattery = null;
+        batteryCharge = defaultBatts;
+        batteryCapacity = defaultBatts;
 
         //##event setup
         trailEventManager = new TrailEvents();
         nextEventMile = eventMiles;
         hasEventReady = false;
         numEventsActive = 0;
+
+        //med setup
+        medicalChecks = new sickCheck();
+        rationScore = 0;
     }
 
-    // we are doing NOTHING with update right now accept dealing with event windows etc
+    //use this to disable buttons based on car conditions
     private void Update()
     {
         if(hasEventReady)
         {
             if(numEventsActive == 0)
             {
-                Debug.Log("No events active!");
+                //Debug.Log("No events active!");
                 hasEventReady = false;
-                managerRef.GetComponent<GameManager>().eventsGone(true);
+                //managerRef.GetComponent<GameManager>().eventsGone(true);
             }
         }
-    } 
+
+        if(isBroken)
+        {
+            speed = 0;
+        }
+    }
+
+   
 
     /*##############################
-      * Public Setters
-      * ###########################*/
+    * UI operations.
+    * ###########################*/
+
+    public void toggleSpeed()
+    {
+       // Debug.Log("toggling speed!");
+        if (speed == 20)
+        {
+            speed = 0;
+        }
+
+        else if (speed == 0)
+        {
+            speed = 10;
+        }
+
+        else
+        {
+            speed += 5;
+        }
+    }
+
+    public void toggleRationLevel()
+    {
+        // Debug.Log("toggling rations!");
+        if (rationLevel == 3)
+        {
+            rationLevel = 1;
+        }
+        else
+        {
+            rationLevel += 1;
+        }
+    }
+
+    /*##############################
+    * Turn operations.
+    * this turns on when the turn button is pressed
+    * ###########################*/
+    public void nextTurn()
+    {
+
+        //check the time, if it's 2000, don't move
+        if (managerRef.GetComponent<Time>().getHour() == 0)
+        {
+            hasEventReady = true;
+            numEventsActive = 1;
+            UIManager.GetComponent<UIGroupManager>().callEvent("night time", "your dudes are sleepin', my guy.", this);
+        }
+
+        //if it's 800, show the morning report
+        else if (managerRef.GetComponent<Time>().getHour() == 400)
+        {
+            hasEventReady = true;
+            numEventsActive = 1;
+            morningReportScreen.SetActive(true);
+
+
+            //Medical check in the morning
+            //check for kill (need settler day sick)
+            //check for cure (need sttler day moving sick)
+            //check for spread (need seltter day not moving)
+
+            //set each settler sick/day +1 if they're sick
+
+            //BIG ASS NOTE: this doesn't tabulate the ration level over the day so- you know- account for that. 
+            sickList = medicalChecks.sickRoll(this);
+            if (sickList.Count > 0)
+            {
+                hasEventReady = true;
+                numEventsActive = sickList.Count;
+            }
+            //this sends the array text it got from the sickmanager to the ui manager for display
+            //then we go and tell the uimanager to refresh the whole window via the carsValueScript
+            for (int i = 0; i < sickList.Count; i++)
+            {
+                UIManager.GetComponent<UIGroupManager>().callEvent(sickList[i][0], sickList[i][1], this);
+                UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+            }
+
+            //since it's a new day, the ration score resets
+            rationScore = 0;
+        }
+
+        //there are 4 turns in a day
+        //this also can be changed to an update and turns can be set to a start/stop
+        //not sure where I am at on that design-wise
+        // Debug.Log("moved: " + speed / 4 + "miles");
+        else
+        {
+            //resource consumption
+            if (foodCount != 0)
+            {
+                foodCount -= rationLevel;
+                rationScore += rationLevel;
+            }
+
+            //to drain the battery it negativly recharges.... don't worry.
+            switch (speed)
+            {
+                case 10:
+                    if (batteryCharge - 1 >= 0)
+                    {
+                        addBatteryCharge(-1);
+                    }
+
+                    else
+                    {
+                        //Debug.Log("battery change event needed");
+                    }
+
+                    break;
+
+                case 15:
+                    if(batteryCharge - 2 >= 0)
+                    {
+                        addBatteryCharge(-2);
+                    }
+
+                    else
+                    {
+                        //Debug.Log("batter ychange event needed");
+                    }
+
+                    break;
+
+                case 20:
+                    if (batteryCharge - 3 >= 0)
+                    {
+                        addBatteryCharge(-3);
+                    }
+
+                    else
+                    {
+                       // Debug.Log("batter uchange event needed");
+                    }
+
+                    break;
+
+                default:
+                    Debug.Log("Error in the battery degredation switch case in CAR");
+                    break;
+            }
+
+            milesMoved += speed;
+            //benching battery management for now so I can do it in a more thoughtful way
+            //I kind of wanna religate it to player control and an event based case because... it's easier.
+
+            //##SETTLER SICK DAY MOVING/STOPPED LOGIC HERE
+            for(int i = 0; i < settlerList.Count; i++)
+            {
+                if (settlerList[i].GetComponent<Settler>().getIsSick() && speed > 0)
+                {
+                    settlerList[i].GetComponent<Settler>().incrementDaysSickMoving();
+                }
+
+                else
+                {
+                    settlerList[i].GetComponent<Settler>().incrementDaysSickNotMoving();
+                }
+            }
+            //else, settler stillMod += 1.25
+            //AANNNNNDDD time moving = stillMod + movMod (since it's just time)
+
+
+            //###EVENT CHECKING
+            //switch doulbe string array into list, otherwize, the logic is sound
+            if (milesMoved >= nextEventMile)
+            {
+                //we're doing a double array with variable dimensions
+                //the trail event script also builds its text array the same way but do be careful
+                //this gets initialized here so, basically use the first dimension to say how many events you have
+                intervalEventText = trailEventManager.rollForEvents(this, eventsPerCheckpoint, .0f);
+                nextEventMile += eventMiles;
+                if(intervalEventText.Count > 0)
+                {
+                    hasEventReady = true;
+                    numEventsActive = intervalEventText.Count;
+                }
+
+                //thi sends the array text it got from the trail event manager to the ui manager for display
+                //then we go and tell the uimanager to refresh the whole window via the carsValueScript
+                for(int i = 0; i < intervalEventText.Count; i++)
+                {
+                    UIManager.GetComponent<UIGroupManager>().callEvent(intervalEventText[i][0], intervalEventText[i][1], this);
+                    UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+                }
+            }
+        }
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+
+    /*##############################
+     * Calls to do routine events
+     * ###########################*/
+    //functions for the individual events go here
+    private void nightOperations()
+    {
+
+    }
+
+    private void diseaseCheck()
+    {
+
+    }
+
+    /*##############################
+     * Public Setters
+     * ###########################*/
     public void setSettler(int settler, string operation)
     {
         //this function will select a settler by number and perform some operaiton on them
@@ -198,10 +419,42 @@ public class CAR : MonoBehaviour
         return;
     }
 
+    /*##############################
+      * PublicIncrementers
+      * ###########################*/
     public void decrimentNumEventsActive(int num)
     {
         numEventsActive -= num;
-        Debug.Log("events active now: " + numEventsActive);
+    }
+
+    public void addMetal(int count)
+    {
+        metalCount += count;
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+    public void addMedi(int count)
+    {
+        mediCount += count;
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+    public void addFood(int count)
+    {
+        foodCount += count;
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+    public void addBatteryCharge(int count)
+    {
+        batteryCharge += count;
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+    public void addBatteryCapacity(int count)
+    {
+        batteryCapacity += count;
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
     }
 
     /*##############################
@@ -222,22 +475,27 @@ public class CAR : MonoBehaviour
         return milesMoved;
     }
 
-    public float getFoodCount()
+    public int getFoodCount()
     {
         return foodCount;
     }
 
-    public int getBattCount()
+    public int getBattCapacity()
     {
-        return batteryStorage.Count;
+        return batteryCapacity;
     }
 
-    public string getBattCharge()
+    public int getBattCharge()
     {
-        return (batteryInUse.getCharge().ToString() + "/" + batteryInUse.getCapacity().ToString());
+        return batteryCharge;
     }
 
-    public int getmediCount()
+    public string getBattChargeAndCapacity()
+    {
+        return (batteryCharge + "/" + batteryCapacity);
+    }
+
+    public int getMediCount()
     {
         return mediCount;
     }
@@ -262,162 +520,13 @@ public class CAR : MonoBehaviour
         return settlerList[index].GetComponent<Settler>();
     }
 
-    /*##############################
-    * UI operations.
-    * ###########################*/
-
-    public void toggleSpeed()
+    public List<GameObject> getSettlerList()
     {
-       // Debug.Log("toggling speed!");
-        if (speed == 80)
-        {
-            speed = 0;
-        }
-
-        else if (speed == 0)
-        {
-            speed = 40;
-        }
-
-        else
-        {
-            speed += 20;
-        }
+        return settlerList;
     }
 
-    public void toggleRationLevel()
+    public int getRationScore()
     {
-        // Debug.Log("toggling rations!");
-        if (rationLevel == 3)
-        {
-            rationLevel = 1;
-        }
-        else
-        {
-            rationLevel += 1;
-        }
-    }
-
-    /*##############################
-    * Turn operations.
-    * ###########################*/
-    public void nextTurn()
-    {
-        //check the time, if it's 2000, don't move
-        if (managerRef.GetComponent<Time>().getHour() == 0)
-        {
-            Debug.Log("night time");
-        }
-
-        //if it's 800, show the morning report
-        else if (managerRef.GetComponent<Time>().getHour() == 400)
-        {
-            hasEventReady = true;
-            numEventsActive = 1;
-            morningReportScreen.SetActive(true);
-        }
-
-
-        //there are 4 turns in a day
-        //this also can be changed to an update and turns can be set to a start/stop
-        //not sure where I am at on that design-wise
-        // Debug.Log("moved: " + speed / 4 + "miles");
-        else
-        {
-            //resource consumption
-            if (foodCount != 0)
-            {
-                foodCount -= rationLevel;
-            }
-
-            //to drain the battery it negativly recharges.... don't worry.
-            switch (speed)
-            {
-                case 40:
-                    if (batteryInUse.getCharge() - 1 >= 0)
-                    {
-                        batteryInUse.recharge(-1);
-                    }
-
-                    else
-                    {
-                        Debug.Log("batter change event needed");
-                    }
-
-                    break;
-
-                case 60:
-                    if(batteryInUse.getCharge() - 2 >= 0)
-                    {
-                        batteryInUse.recharge(-2);
-                    }
-
-                    else
-                    {
-                        Debug.Log("batter change event needed");
-                    }
-
-                    break;
-
-                case 80:
-                    if (batteryInUse.getCharge() - 3 >= 0)
-                    {
-                        batteryInUse.recharge(-3);
-                    }
-
-                    else
-                    {
-                        Debug.Log("batter change event needed");
-                    }
-
-                    break;
-
-                default:
-                    Debug.Log("Error in the battery degredation switch case in CAR");
-                    break;
-            }
-
-            //benching battery management for now so I can do it in a more thoughtful way
-            //I kind of wanna religate it to player control and an event based case because... it's easier.
-            milesMoved += speed / 4;
-
-            //###EVENT CHECKING
-            if(milesMoved >= nextEventMile)
-            {
-                //we're doing a double array with variable dimensions
-                //the trail event script also builds its text array the same way but do be careful
-                Debug.Log("Event!");
-                hasEventReady = true;
-                numEventsActive = eventsPerCheckpoint;
-                intervalEventText = trailEventManager.rollForEvents(this, eventsPerCheckpoint, .0f);
-                nextEventMile += eventMiles;
-
-                
-
-                //checking to see if array builds via debug before differing to the UI manager:
-                for(int i = 0; i < eventsPerCheckpoint; i++)
-                {
-                    Debug.Log(intervalEventText[i, 0]);
-                    Debug.Log(intervalEventText[i, 1]);
-                    UIManager.GetComponent<UIGroupManager>().callEvent(intervalEventText[i, 0], intervalEventText[i, 1], this);
-                }
-            }
-        }
-
-    }
-
-
-    /*##############################
-     * Calls to do routine events
-     * ###########################*/
-    //functions for the individual events go here
-    private void nightOperations()
-    {
-
-    }
-
-    private void diseaseCheck()
-    {
-
+        return rationScore;
     }
 }
