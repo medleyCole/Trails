@@ -18,32 +18,37 @@ public class sickCheck
         float rationMod = .0f;
         List<string[]> sickList = new List<string[]>();
 
-        if (rationScore <= 2)
+        if (rationScore <= 0)
         {
              rationMod = .2f;
               
         }
 
-        else if (rationScore <= 4)
+        else if (rationScore <= 2)
         {
             rationMod = .15f;
         }
 
-        else if (rationScore <=6)
+        else if (rationScore <=4)
         {
             rationMod = .1f;
         }
 
-        else if (rationScore <= 8)
+        else if (rationScore <= 6)
         {
             rationMod = .075f;
         }
 
-        else if (rationScore <= 10)
+        else if (rationScore <= 8)
         {
             rationMod = .05f;
         }
 
+        else if (rationScore <= 10)
+        {
+            rationMod = .025f;
+        }
+        
         else if (rationScore <= 12)
         {
             rationMod = .0f;
@@ -52,13 +57,10 @@ public class sickCheck
         else
         {
             rationMod = .0f;
-            Debug.Log("Error in ration math, you somehow have a score above 12");
+            Debug.Log("Error in ration math in sick, you somehow have a score above 12");
         }
 
-
-
-
-        
+    
         //if getSettler(i) !isSick
         for(int i = 0; i < targetCar.getSettlerList().Count; i ++)
         {
@@ -76,38 +78,212 @@ public class sickCheck
     }
 
 
-    public List<string[]> killRoll(Settler targetSettler, CAR targetCar)
+    public List<string[]> killRoll(CAR targetCar)
     {
-        float rationMod;
-        //switch ration mod: 20, 10, 0, -5 : 0, 1, 2, 3
-        //do a d100 roll
-        //kill settler if roll loses to  ration mod + settker perdays sick
-        return new List<string[]>();
+        int rationScore = targetCar.getRationScore();
+        float rationMod = .0f;
+        List<string[]> dieList = new List<string[]>();
+
+        if(rationScore <= 0)
+        {
+            rationMod = .2f;
+        }
+
+        if (rationScore <= 2)
+        {
+            rationMod = .15f;
+        }
+
+        else if (rationScore <= 4)
+        {
+            rationMod = .10f;
+        }
+
+        else if (rationScore <= 6)
+        {
+            rationMod = .05f;
+        }
+
+        else if (rationScore <= 8)
+        {
+            rationMod = .0f;
+        }
+
+        else if (rationScore <= 10)
+        {
+            rationMod = -.025f;
+        }
+
+        else if (rationScore <= 12)
+        {
+            rationMod = -.05f;
+        }
+
+        else
+        {
+            rationMod = .0f;
+            Debug.Log("Error in ration math in kill block, you somehow have a score above 12");
+        }
+
+        for (int i = 0; i < targetCar.getSettlerList().Count; i++)
+        {
+            if (targetCar.getSettlerFromList(i).getIsSick())
+            {
+                float roll = rolld100();
+                if (rolld100() < (baseKillChance + rationMod + targetCar.getSettlerFromList(i).getDaysSickMod())) //also make sure to add .05 per land mark
+                {
+                    targetCar.getSettlerFromList(i).setIsDead(true);
+                    dieList.Add(new string[] { "Settler dead!", targetCar.getSettlerFromList(i).getName() + " died from disease" });
+                }
+            }
+        }
+        return dieList;
+
+
     }
 
-    public List<string[]> spreadRoll(Settler targetSettler,  CAR targetCar)
+    public List<string[]> spreadRoll(CAR targetCar)
     {
-        float rationMod;
-        //switch case ration mod: 20, 10, 0, -5 : 0, 1, 2, 3
-        //do a d100 roll
-        //if settler fails a + per day moving(+5) + ration mod,
-        //then get a list of all of the settlers, and try and find one that is sick
-        //once they are sick, return a string explaining who got infected by who
-        //if they don't spread it, then just bottom out the case and return a void string
-        //then make sure car is checking for something void, if it's void tell it to not run it, SPECIFICALLY at this step
+        int rationScore = targetCar.getRationScore();
+        float rationMod = .0f;
+        List<string[]> spreadList = new List<string[]>();
 
-        return new List<string[]>();
+        if (rationScore <= 0)
+        {
+            rationMod = .2f;
+        }
+
+        if (rationScore <= 2)
+        {
+            rationMod = .15f;
+        }
+
+        else if (rationScore <= 4)
+        {
+            rationMod = .10f;
+        }
+
+        else if (rationScore <= 6)
+        {
+            rationMod = .05f;
+        }
+
+        else if (rationScore <= 8)
+        {
+            rationMod = .0f;
+        }
+
+        else if (rationScore <= 10)
+        {
+            rationMod = -.025f;
+        }
+
+        else if (rationScore <= 12)
+        {
+            rationMod = -.05f;
+        }
+
+        else
+        {
+            rationMod = .0f;
+            Debug.Log("Error in ration math in spread block, you somehow have a score above 12");
+        }
+        
+
+        for (int i = 0; i < targetCar.getSettlerList().Count; i++)
+        {
+            bool isHealthySettler = false;
+            List<Settler> infectList = new List<Settler>();
+            //make sure someone CAN get sick 
+            for (int j = 0; j < targetCar.getSettlerList().Count; j++)
+            {
+                if(!targetCar.getSettlerFromList(j).getIsSick())
+                {
+                    isHealthySettler = true;
+                    infectList.Add(targetCar.getSettlerFromList(j));
+                }
+            }
+            if(!isHealthySettler)
+            {
+                Debug.Log("There is nobody to infect!");
+            }
+
+           if (targetCar.getSettlerFromList(i).getIsSick() && isHealthySettler)
+            {
+                int infectIndex = Random.Range(0, (infectList.Count - 1));
+                float roll = rolld100();
+                if (rolld100() < (baseSpreadChance + rationMod + targetCar.getSettlerFromList(infectIndex).getDaysSickMovingMod())) //also make sure to add .05 per land mark
+                {
+                    //pick a random settler of those that are healthy and infect them
+                    
+                    targetCar.getSettlerFromList(infectIndex).setIsSick(true);
+                    spreadList.Add(new string[] { "Disease Spread!", targetCar.getSettlerFromList(infectIndex).getName() + " got sick from " + targetCar.getSettlerFromList(i).getName() });
+                }
+            }
+        }
+        return spreadList;
     }
 
-    public List<string[]> cureRoll(Settler targetSettler, CAR targetCar)
+    public List<string[]> cureRoll(CAR targetCar)
     {
-        float rationMod;
-        //switch case ration mod: -20, -10, 0, 5 : 0, 1, 2, 3
-        //do a d100 roll
-        //if settler fails a + per day stopped(+5) + ration mod, + 10base, they are cured
-        //once they are cured, return a string explaining it
-        //also reset that villagers sick day counters
-        return new List<string[]>();
+        int rationScore = targetCar.getRationScore();
+        float rationMod = .0f;
+        List<string[]> cureList = new List<string[]>();
+
+        if (rationScore <= 0)
+        {
+            rationMod = -.2f;
+        }
+
+        if (rationScore <= 2)
+        {
+            rationMod = -.15f;
+        }
+
+        else if (rationScore <= 4)
+        {
+            rationMod = -.10f;
+        }
+
+        else if (rationScore <= 6)
+        {
+            rationMod = -.05f;
+        }
+
+        else if (rationScore <= 8)
+        {
+            rationMod = .0f;
+        }
+
+        else if (rationScore <= 10)
+        {
+            rationMod = .025f;
+        }
+
+        else if (rationScore <= 12)
+        {
+            rationMod = .05f;
+        }
+
+        else
+        {
+            rationMod = .0f;
+            Debug.Log("Error in ration math in kill block, you somehow have a score above 12");
+        }
+
+        for (int i = 0; i < targetCar.getSettlerList().Count; i++)
+        {
+            if (targetCar.getSettlerFromList(i).getIsSick())
+            {
+                float roll = rolld100();
+                if (rolld100() < (baseCureChance + rationMod + .05* targetCar.getSettlerFromList(i).getDaysSickNotMovingMod())) 
+                {
+                    targetCar.getSettlerFromList(i).setIsSick(false);
+                    cureList.Add(new string[] { "Settler cured!", targetCar.getSettlerFromList(i).getName() + "Is no longer sick from disease" });
+                }
+            }
+        }
+        return cureList;
     }
 
     //dice

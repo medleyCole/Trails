@@ -14,6 +14,7 @@ public class Settler : MonoBehaviour
 
     //disease
     private bool isSick;
+    private bool isDead;
     private float daysSickMod;
     private float daysSickMovingMod;
     private float daysSickNotMovingMod;
@@ -188,18 +189,36 @@ public class Settler : MonoBehaviour
     {
         return isInjured;
     }
+
+    public float getDaysSickNotMovingMod()
+    {
+        return daysSickNotMovingMod;
+    }
+
+    public float getDaysSickMovingMod()
+    {
+        return daysSickMovingMod;
+    }
+
+    public float getDaysSickMod()
+    {
+        return daysSickMod;
+    }
     //##Inrementers 
     public void incrementDaysSickMoving()
     {
-        daysSickMovingMod += 1.25f;
-        daysSickMod += 1.25f;
+        daysSickMovingMod += .0125f;
+        daysSickMod += .0125f;
     }
 
     public void incrementDaysSickNotMoving()
     {
-        daysSickNotMovingMod += 1.25f;
-        daysSickMod += 1.25f;
+        daysSickNotMovingMod += .0125f;
+        daysSickMod += .0125f;
     }
     //##Setters
-
+    public void setIsDead(bool dead)
+    {
+        isDead = dead;
+    }
 }
