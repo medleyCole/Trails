@@ -78,9 +78,9 @@ public class CAR : MonoBehaviour
     private int rationScore;   //used for braeting, incrimented by ration level every turn, reset in morning
     private sickCheck medicalChecks;
     private List<string[]> sickList;
-    private List<string[]> diedFromSickList;
-    private List<string[]> curedList;
-    private List<string[]> spreadSickList;
+    private List<string[]> killList;
+    private List<string[]> cureList;
+    private List<string[]> spreadList;
 
     //a reference to manager so I can- like get information from it
     public GameObject managerRef;
@@ -194,7 +194,7 @@ public class CAR : MonoBehaviour
         // Debug.Log("toggling rations!");
         if (rationLevel == 3)
         {
-            rationLevel = 1;
+            rationLevel = 0;
         }
         else
         {
@@ -218,29 +218,67 @@ public class CAR : MonoBehaviour
         }
 
         //if it's 800, show the morning report
+        //we also do our disease-related checking here
         else if (managerRef.GetComponent<Time>().getHour() == 400)
         {
             hasEventReady = true;
             numEventsActive = 1;
             morningReportScreen.SetActive(true);
 
+            //check for spread (need seltter day not moving)
+            spreadList = medicalChecks.spreadRoll(this);
+            if (spreadList.Count > 0)
+            {
+                hasEventReady = true;
+                numEventsActive += spreadList.Count;
+            }
 
             //Medical check in the morning
             //check for kill (need settler day sick)
+            killList = medicalChecks.killRoll(this);
+            if (killList.Count > 0)
+            {
+                hasEventReady = true;
+                numEventsActive += killList.Count;
+            }
+
             //check for cure (need sttler day moving sick)
-            //check for spread (need seltter day not moving)
+            cureList = medicalChecks.cureRoll(this);
+            if (cureList.Count > 0)
+            {
+                hasEventReady = true;
+                numEventsActive += cureList.Count;
+            }
 
             //set each settler sick/day +1 if they're sick
-
-            //BIG ASS NOTE: this doesn't tabulate the ration level over the day so- you know- account for that. 
             sickList = medicalChecks.sickRoll(this);
             if (sickList.Count > 0)
             {
                 hasEventReady = true;
-                numEventsActive = sickList.Count;
+                numEventsActive += sickList.Count;
             }
+
+            //###order: spread, kill, cure, sick
             //this sends the array text it got from the sickmanager to the ui manager for display
             //then we go and tell the uimanager to refresh the whole window via the carsValueScript
+            for (int i = 0; i < spreadList.Count; i++)
+            {
+                UIManager.GetComponent<UIGroupManager>().callEvent(spreadList[i][0], spreadList[i][1], this);
+                UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+            }
+
+            for (int i = 0; i < killList.Count; i++)
+            {
+                UIManager.GetComponent<UIGroupManager>().callEvent(killList[i][0], killList[i][1], this);
+                UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+            }
+
+            for (int i = 0; i < cureList.Count; i++)
+            {
+                UIManager.GetComponent<UIGroupManager>().callEvent(cureList[i][0], cureList[i][1], this);
+                UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+            }
+
             for (int i = 0; i < sickList.Count; i++)
             {
                 UIManager.GetComponent<UIGroupManager>().callEvent(sickList[i][0], sickList[i][1], this);
@@ -254,86 +292,107 @@ public class CAR : MonoBehaviour
         //there are 4 turns in a day
         //this also can be changed to an update and turns can be set to a start/stop
         //not sure where I am at on that design-wise
-        // Debug.Log("moved: " + speed / 4 + "miles");
-        else
+
+        //this is a turn case for when the player is moving during the day
+        else if(speed != 0)
         {
-            //resource consumption
-            if (foodCount != 0)
+            //if the ration level is 0, try and someone 
+            //5% chance a settler dies when they can't eat
+            if(rationLevel == 0)
             {
-                foodCount -= rationLevel;
-                rationScore += rationLevel;
+                for(int i = 0; i < settlerList.Count; i++)
+                { 
+                     if((int)Random.Range(1,100) <= 5)
+                     {
+                        if (!getSettlerFromList(i).getIsDead())
+                        {
+                            getSettlerFromList(i).setIsDead(true);
+                            hasEventReady = true;
+                            numEventsActive++;
+
+                            UIManager.GetComponent<UIGroupManager>().callEvent("Starvation!", getSettlerFromList(i).getName() + "Has starved to death!", this);
+                            UIManager.GetComponent<UIGroupManager>().refreshCarInfo(); 
+                        }
+                     }
+                }
             }
+            
 
             //to drain the battery it negativly recharges.... don't worry.
+            //benching battery management for now so I can do it in a more thoughtful way
+            //I kind of wanna religate it to player control and an event based case because... it's easier.
+            //should be an event notifcation here
+            int settlerBatt = (int)stats[1];
             switch (speed)
             {
                 case 10:
-                    if (batteryCharge - 1 >= 0)
+                    if (batteryCharge - 1 - settlerBatt >= 0)
                     {
-                        addBatteryCharge(-1);
+                        addBatteryCharge(-1 - settlerBatt);
                     }
 
                     else
                     {
-                        //Debug.Log("battery change event needed");
+
+                        speed = 0;
                     }
 
                     break;
 
                 case 15:
-                    if(batteryCharge - 2 >= 0)
+                    if(batteryCharge - 2 - settlerBatt  >= 0)
                     {
-                        addBatteryCharge(-2);
+                        addBatteryCharge(-2 - settlerBatt);
                     }
 
                     else
                     {
-                        //Debug.Log("batter ychange event needed");
+                        speed = 0;
                     }
 
                     break;
 
                 case 20:
-                    if (batteryCharge - 3 >= 0)
+                    if (batteryCharge - 3 - settlerBatt >= 0)
                     {
-                        addBatteryCharge(-3);
+                        addBatteryCharge(-3 - settlerBatt);
                     }
 
                     else
                     {
-                       // Debug.Log("batter uchange event needed");
+                        speed = 0;
                     }
 
                     break;
 
                 default:
-                    Debug.Log("Error in the battery degredation switch case in CAR");
+                    Debug.Log("Error in the battery charge switch case in CAR");
                     break;
             }
 
-            milesMoved += speed;
-            //benching battery management for now so I can do it in a more thoughtful way
-            //I kind of wanna religate it to player control and an event based case because... it's easier.
-
-            //##SETTLER SICK DAY MOVING/STOPPED LOGIC HERE
-            for(int i = 0; i < settlerList.Count; i++)
+            //food consumption
+            if(foodCount <= 0)
             {
-                if (settlerList[i].GetComponent<Settler>().getIsSick() && speed > 0)
-                {
-                    settlerList[i].GetComponent<Settler>().incrementDaysSickMoving();
-                }
-
-                else
-                {
-                    settlerList[i].GetComponent<Settler>().incrementDaysSickNotMoving();
-                }
+                rationLevel = 0;
             }
-            //else, settler stillMod += 1.25
-            //AANNNNNDDD time moving = stillMod + movMod (since it's just time)
 
+            foodCount += (int)stats[0];
+            foodCount -= rationLevel * settlerList.Count;                
+            rationScore += rationLevel;
+            Debug.Log("Current ration score: " + rationScore);
 
+            if(foodCount < 0)
+            {
+                foodCount = 0;
+            }
+
+            //after that, move the car
+            //we don't need to check for speed0 here since this next line covers that case by default
+            milesMoved += speed;
+
+         
             //###EVENT CHECKING
-            //switch doulbe string array into list, otherwize, the logic is sound
+            //Now that the car moved, checked to see if it needs to go through any event processing
             if (milesMoved >= nextEventMile)
             {
                 //we're doing a double array with variable dimensions
@@ -354,6 +413,54 @@ public class CAR : MonoBehaviour
                     UIManager.GetComponent<UIGroupManager>().callEvent(intervalEventText[i][0], intervalEventText[i][1], this);
                     UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
                 }
+            }
+        }
+
+        //not moving case, food and energy reclimation happens here
+        //I want to have a ui element display so a player knows that too
+        //it has to be done in this fuggoff ugly way so that when the battery can't be drained past 0, we can access this case
+        if(speed == 0 && !(managerRef.GetComponent<Time>().getHour() == 0)  && !(managerRef.GetComponent<Time>().getHour() == 400))
+        {
+            //during speed 0, settlers will find atleast 2 food a day each, they still eat according to ration level though
+            //also only postive food find stats apply.
+            foodCount += settlerList.Count * 2;
+            foodCount -= rationLevel * settlerList.Count;
+            if (stats[0] > 0)
+            {
+                foodCount += (int)stats[0];
+            }
+            rationScore += rationLevel;
+
+            //the batts will recharge at a base of 1 day
+            int batteryChargeIncrease = 1;
+            if (stats[2] > 0)
+            {
+                batteryChargeIncrease = (int)stats[2] + 1;
+            }
+            
+            if(batteryChargeIncrease + batteryCharge <= batteryCapacity)
+            {
+                batteryCharge += batteryChargeIncrease;
+            }
+
+            else
+            {
+                batteryCharge = batteryCapacity;
+            }
+            
+        }
+
+        //##SETTLER SICK DAY MOVING/STOPPED LOGIC HERE
+        for (int i = 0; i < settlerList.Count; i++)
+        {
+            if (settlerList[i].GetComponent<Settler>().getIsSick() && speed > 0)
+            {
+                settlerList[i].GetComponent<Settler>().incrementDaysSickMoving();
+            }
+
+            else
+            {
+                settlerList[i].GetComponent<Settler>().incrementDaysSickNotMoving();
             }
         }
         UIManager.GetComponent<UIGroupManager>().refreshCarInfo();

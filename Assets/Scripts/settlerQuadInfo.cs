@@ -32,6 +32,10 @@ public class settlerQuadInfo : MonoBehaviour
     public void updateSettler()
     {
         settlerName.text = selectedCar.getSettlerFromList(quadNumber).getName();
+        if(selectedCar.getSettlerFromList(quadNumber).getIsDead())
+            {
+            settlerName.text = "DEAD";
+            }
         settlerProfession.text = selectedCar.getSettlerFromList(quadNumber).getProfession();
         settlerTrait1.text = selectedCar.getSettlerFromList(quadNumber).getTrait1();
         settlerTrait2.text = selectedCar.getSettlerFromList(quadNumber).getTrait2();

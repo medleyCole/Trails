@@ -12,6 +12,9 @@ public class sickCheck
     //these all return 2d strings as a borrow from how we do trail events
     //this way we can use the method call in CAR to do a call to the UI manager to show the event window
     //very swank if I do say so myself
+    //all of these sick check methods are essentially the same thing archetecturally so they should be easy to follow
+
+    //every morning we check to see if a settler gets sick
     public List<string[]> sickRoll(CAR targetCar)
     {
         int rationScore = targetCar.getRationScore();
@@ -66,8 +69,9 @@ public class sickCheck
         {
             if (!targetCar.getSettlerFromList(i).getIsSick())
             {
+                //assigning roll and using it incase I want to check the rolls with debug astatements later
                 float roll = rolld100();
-                if (rolld100() < (baseSickChance + rationMod)) //also make sure to add .05 per land mark
+                if (roll < (baseSickChance + rationMod)) //also make sure to add .05 per land mark
                 {
                     targetCar.getSettlerFromList(i).setIsSick(true);
                     sickList.Add(new string[]{ "Settler sick!", targetCar.getSettlerFromList(i).getName() + " got sick!" });
@@ -77,7 +81,7 @@ public class sickCheck
         return sickList;
     }
 
-
+    //every morning (before sick roll) we check to see if a settler's disease kills them
     public List<string[]> killRoll(CAR targetCar)
     {
         int rationScore = targetCar.getRationScore();
@@ -130,7 +134,7 @@ public class sickCheck
             if (targetCar.getSettlerFromList(i).getIsSick())
             {
                 float roll = rolld100();
-                if (rolld100() < (baseKillChance + rationMod + targetCar.getSettlerFromList(i).getDaysSickMod())) //also make sure to add .05 per land mark
+                if (roll < (baseKillChance + rationMod + targetCar.getSettlerFromList(i).getDaysSickMod())) //also make sure to add .05 per land mark
                 {
                     targetCar.getSettlerFromList(i).setIsDead(true);
                     dieList.Add(new string[] { "Settler dead!", targetCar.getSettlerFromList(i).getName() + " died from disease" });
@@ -142,6 +146,7 @@ public class sickCheck
 
     }
 
+    //every morning (bfore sick roll) we check to see if a settler's disease spreads to another settler
     public List<string[]> spreadRoll(CAR targetCar)
     {
         int rationScore = targetCar.getRationScore();
@@ -212,11 +217,11 @@ public class sickCheck
             {
                 int infectIndex = Random.Range(0, (infectList.Count - 1));
                 float roll = rolld100();
-                if (rolld100() < (baseSpreadChance + rationMod + targetCar.getSettlerFromList(infectIndex).getDaysSickMovingMod())) //also make sure to add .05 per land mark
+                if (roll < (baseSpreadChance + rationMod + targetCar.getSettlerFromList(infectIndex).getDaysSickMovingMod())) //also make sure to add .05 per land mark
                 {
                     //pick a random settler of those that are healthy and infect them
                     
-                    targetCar.getSettlerFromList(infectIndex).setIsSick(true);
+                    infectList[infectIndex].setIsSick(true);
                     spreadList.Add(new string[] { "Disease Spread!", targetCar.getSettlerFromList(infectIndex).getName() + " got sick from " + targetCar.getSettlerFromList(i).getName() });
                 }
             }
@@ -224,6 +229,7 @@ public class sickCheck
         return spreadList;
     }
 
+    //every morning (before sickroll) we check to see if a settler is no longer sick
     public List<string[]> cureRoll(CAR targetCar)
     {
         int rationScore = targetCar.getRationScore();
@@ -269,6 +275,7 @@ public class sickCheck
         {
             rationMod = .0f;
             Debug.Log("Error in ration math in kill block, you somehow have a score above 12");
+            Debug.Log(rationScore);
         }
 
         for (int i = 0; i < targetCar.getSettlerList().Count; i++)
@@ -276,7 +283,7 @@ public class sickCheck
             if (targetCar.getSettlerFromList(i).getIsSick())
             {
                 float roll = rolld100();
-                if (rolld100() < (baseCureChance + rationMod + .05* targetCar.getSettlerFromList(i).getDaysSickNotMovingMod())) 
+                if (roll < (baseCureChance + rationMod + .05* targetCar.getSettlerFromList(i).getDaysSickNotMovingMod())) 
                 {
                     targetCar.getSettlerFromList(i).setIsSick(false);
                     cureList.Add(new string[] { "Settler cured!", targetCar.getSettlerFromList(i).getName() + "Is no longer sick from disease" });

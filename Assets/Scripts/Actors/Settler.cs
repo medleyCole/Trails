@@ -22,7 +22,7 @@ public class Settler : MonoBehaviour
     //injury
     //note, the current game doesn't have injury
     private bool isInjured;
-    private int daysInjured;
+   // private int daysInjured;
 
     private void Awake()
     {
@@ -34,7 +34,7 @@ public class Settler : MonoBehaviour
         daysSickMod = 0;
 
         isInjured = false;
-        daysInjured = 0;
+        //daysInjured = 0;
 
         for (int i = 0; i < 6; i++)
         {
@@ -56,7 +56,7 @@ public class Settler : MonoBehaviour
                 //sets food/day to plus 4
                 //(for the ini, you could feed values here)
                 //maybe this should modify animal handeling more?
-                stats[0] += 4;
+                stats[0] += 2;
                 break;
 
             case 1:
@@ -124,7 +124,7 @@ public class Settler : MonoBehaviour
                 case 5:
                     traits[i] = "Bad with tools";
                     //repair chance down %
-                    stats[3] -= 05f;
+                    stats[3] -= .05f;
                     break;
 
                 case 6:
@@ -188,6 +188,11 @@ public class Settler : MonoBehaviour
     public bool getIsInjured()
     {
         return isInjured;
+    }
+
+    public bool getIsDead()
+    {
+        return isDead;
     }
 
     public float getDaysSickNotMovingMod()
