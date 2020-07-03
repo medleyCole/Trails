@@ -19,6 +19,7 @@ public class settlerQuadInfo : MonoBehaviour
     //we only need to activate or deactivate these things so we'll treat them like game objects
     public GameObject settlerIsSick;
     public GameObject settlerIsInjured;
+    public GameObject quadBox;
 
     public void Awake()
     {
@@ -33,9 +34,9 @@ public class settlerQuadInfo : MonoBehaviour
     {
         settlerName.text = selectedCar.getSettlerFromList(quadNumber).getName();
         if(selectedCar.getSettlerFromList(quadNumber).getIsDead())
-            {
-            settlerName.text = "DEAD";
-            }
+        {
+            quadBox.SetActive(false);
+        }
         settlerProfession.text = selectedCar.getSettlerFromList(quadNumber).getProfession();
         settlerTrait1.text = selectedCar.getSettlerFromList(quadNumber).getTrait1();
         settlerTrait2.text = selectedCar.getSettlerFromList(quadNumber).getTrait2();

@@ -11,6 +11,7 @@ public class UIGroupManager : MonoBehaviour
     public GameObject turnButton;
     public GameObject eventPanel;
     public GameObject carInfo;
+    public GameObject detailedCarInfo;
 
     //I'm so fucking stupid but we're hitting this with our gucci on
     //Event window stuff
@@ -42,5 +43,6 @@ public class UIGroupManager : MonoBehaviour
     public void refreshCarInfo()
     {
         carInfo.GetComponent<valuesFromCar>().turnUpdate();
+        detailedCarInfo.GetComponent<infoUIScript>().refreshCaravanInfo();
     }
 }

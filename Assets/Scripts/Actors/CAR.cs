@@ -117,8 +117,8 @@ public class CAR : MonoBehaviour
             tempSettlerStats = settlerList[i].GetComponent<Settler>().getStats();
             for(int j= 0; j < 6; j++)
             {
-               // Debug.Log("temp stat " + j + "for settler " + i + ": " + tempSettlerStats[j]);
                 stats[j] += tempSettlerStats[j];
+
                // Debug.Log("current car stat " + j + ": " + stats[j]);
             }
         }
@@ -296,7 +296,7 @@ public class CAR : MonoBehaviour
         //this is a turn case for when the player is moving during the day
         else if(speed != 0)
         {
-            //if the ration level is 0, try and someone 
+            //if the ration level is 0, try and kill someone 
             //5% chance a settler dies when they can't eat
             if(rationLevel == 0)
             {
@@ -311,6 +311,7 @@ public class CAR : MonoBehaviour
                             numEventsActive++;
 
                             UIManager.GetComponent<UIGroupManager>().callEvent("Starvation!", getSettlerFromList(i).getName() + "Has starved to death!", this);
+                            removeSettler(i);
                             UIManager.GetComponent<UIGroupManager>().refreshCarInfo(); 
                         }
                      }
@@ -379,7 +380,6 @@ public class CAR : MonoBehaviour
             foodCount += (int)stats[0];
             foodCount -= rationLevel * settlerList.Count;                
             rationScore += rationLevel;
-            Debug.Log("Current ration score: " + rationScore);
 
             if(foodCount < 0)
             {
@@ -476,9 +476,20 @@ public class CAR : MonoBehaviour
 
     }
 
-    private void diseaseCheck()
+    public void removeSettler(int settler)
     {
+        //first remove the settler's stats from our total
+        float[] removeStats = settlerList[settler].GetComponent<Settler>().getStats();
+        for(int i = 0; i < stats.Length; i++)
+        {
+            stats[i] -= removeStats[i];
+        }
 
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+        //NOTE: the settler stays in the list since our ui quad calculations depend on this assumption
+        //as far as this car is concerned, and as far as the events are concerned, it doesn't exist
+        //the ui knows it still exists but ti just shows its box as inactive- so it isn't.
+        //this can be useful later so we can memorialize the dead settler or otherwise account for their not-being-alive
     }
 
     /*##############################

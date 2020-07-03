@@ -22,7 +22,7 @@ public class TrailEvents
         //###picking which events to do
 
         //most likely case
-        //this should always be true given checking for 2 and 3
+        //this should always be true given checking for 2 and 3 for the time being
         //if (numToCheck < numEventFunctions)
         if (true) 
         {

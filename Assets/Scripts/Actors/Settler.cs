@@ -91,13 +91,13 @@ public class Settler : MonoBehaviour
                 case 0:
                     traits[i] = "Eats a lot";
                     //food expend up +1/turn
-                    stats[0] += 1;
+                    stats[0] -= 1;
                     break;
 
                 case 1:
                     traits[i] = "Eats little";
                     //food expend down +1/turn
-                    stats[0] -= 1;
+                    stats[0] += 1;
                     break;
 
                 case 2:

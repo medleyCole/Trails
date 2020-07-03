@@ -67,7 +67,7 @@ public class sickCheck
         //if getSettler(i) !isSick
         for(int i = 0; i < targetCar.getSettlerList().Count; i ++)
         {
-            if (!targetCar.getSettlerFromList(i).getIsSick())
+            if (!targetCar.getSettlerFromList(i).getIsSick() && !targetCar.getSettlerFromList(i).getIsDead())
             {
                 //assigning roll and using it incase I want to check the rolls with debug astatements later
                 float roll = rolld100();
@@ -131,13 +131,14 @@ public class sickCheck
 
         for (int i = 0; i < targetCar.getSettlerList().Count; i++)
         {
-            if (targetCar.getSettlerFromList(i).getIsSick())
+            if (targetCar.getSettlerFromList(i).getIsSick() && !targetCar.getSettlerFromList(i).getIsDead())
             {
                 float roll = rolld100();
                 if (roll < (baseKillChance + rationMod + targetCar.getSettlerFromList(i).getDaysSickMod())) //also make sure to add .05 per land mark
                 {
                     targetCar.getSettlerFromList(i).setIsDead(true);
                     dieList.Add(new string[] { "Settler dead!", targetCar.getSettlerFromList(i).getName() + " died from disease" });
+                    targetCar.removeSettler(i);
                 }
             }
         }
@@ -202,7 +203,7 @@ public class sickCheck
             //make sure someone CAN get sick 
             for (int j = 0; j < targetCar.getSettlerList().Count; j++)
             {
-                if(!targetCar.getSettlerFromList(j).getIsSick())
+                if(!targetCar.getSettlerFromList(j).getIsSick() && !targetCar.getSettlerFromList(i).getIsDead())
                 {
                     isHealthySettler = true;
                     infectList.Add(targetCar.getSettlerFromList(j));
@@ -213,7 +214,7 @@ public class sickCheck
                 Debug.Log("There is nobody to infect!");
             }
 
-           if (targetCar.getSettlerFromList(i).getIsSick() && isHealthySettler)
+           if (targetCar.getSettlerFromList(i).getIsSick() && isHealthySettler && !targetCar.getSettlerFromList(i).getIsDead())
             {
                 int infectIndex = Random.Range(0, (infectList.Count - 1));
                 float roll = rolld100();
@@ -280,7 +281,7 @@ public class sickCheck
 
         for (int i = 0; i < targetCar.getSettlerList().Count; i++)
         {
-            if (targetCar.getSettlerFromList(i).getIsSick())
+            if (targetCar.getSettlerFromList(i).getIsSick() && !targetCar.getSettlerFromList(i).getIsDead())
             {
                 float roll = rolld100();
                 if (roll < (baseCureChance + rationMod + .05* targetCar.getSettlerFromList(i).getDaysSickNotMovingMod())) 
