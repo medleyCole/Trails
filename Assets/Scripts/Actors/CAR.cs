@@ -81,6 +81,7 @@ public class CAR : MonoBehaviour
     private List<string[]> killList;
     private List<string[]> cureList;
     private List<string[]> spreadList;
+    private int livingSettlers;
 
     //a reference to manager so I can- like get information from it
     public GameObject managerRef;
@@ -143,6 +144,7 @@ public class CAR : MonoBehaviour
         //med setup
         medicalChecks = new sickCheck();
         rationScore = 0;
+        livingSettlers = 4;
     }
 
     //use this to disable buttons based on car conditions
@@ -378,7 +380,7 @@ public class CAR : MonoBehaviour
             }
 
             foodCount += (int)stats[0];
-            foodCount -= rationLevel * settlerList.Count;                
+            foodCount -= rationLevel * livingSettlers
             rationScore += rationLevel;
 
             if(foodCount < 0)
@@ -423,8 +425,8 @@ public class CAR : MonoBehaviour
         {
             //during speed 0, settlers will find atleast 2 food a day each, they still eat according to ration level though
             //also only postive food find stats apply.
-            foodCount += settlerList.Count * 2;
-            foodCount -= rationLevel * settlerList.Count;
+            foodCount += livingSettlers * 2;
+            foodCount -= rationLevel * livingSettlers;
             if (stats[0] > 0)
             {
                 foodCount += (int)stats[0];
