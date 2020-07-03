@@ -32,6 +32,9 @@ public class CAR : MonoBehaviour
     private int foodCount;
     private int mediCount;
 
+    public bool hasEnoughFood;
+    public bool hasEnoughCharge;
+
 
     //battery usage
     public int defaultBatts;
@@ -150,9 +153,9 @@ public class CAR : MonoBehaviour
     //use this to disable buttons based on car conditions
     private void Update()
     {
-        if(hasEventReady)
+        if (hasEventReady)
         {
-            if(numEventsActive == 0)
+            if (numEventsActive == 0)
             {
                 //Debug.Log("No events active!");
                 hasEventReady = false;
@@ -160,10 +163,102 @@ public class CAR : MonoBehaviour
             }
         }
 
-        if(isBroken)
+        if (isBroken)
         {
             speed = 0;
         }
+
+
+        //checks for showing warnings about speed and food
+        int settlerBatt = (int)stats[1];
+        switch (speed)
+        {
+            case 0:
+                hasEnoughCharge = true;
+                break;
+
+            case 10:
+                if (batteryCharge - 1 - settlerBatt < 0)
+                {
+                    hasEnoughCharge = false;
+                }
+
+                else
+                {
+                    hasEnoughCharge = true;
+                }
+                break;
+
+            case 15:
+                if (batteryCharge - 2 - settlerBatt < 0)
+                {
+                    hasEnoughCharge = false;
+                }
+
+                else
+                {
+                    hasEnoughCharge = true;
+                }
+
+                break;
+
+            case 20:
+                if (batteryCharge - 3 - settlerBatt < 0)
+                {
+                    hasEnoughCharge = false;
+                }
+
+                else
+                {
+                    hasEnoughCharge = true;
+                }
+
+                break;
+
+            default:
+                Debug.Log("Error in the battery charge switch case in CAR update for warning");
+                break;
+        }
+
+        //for food: if the player isn't moving they will always be able to regain food. even if not... I mean the game would freeze here if I didn't
+        //resolve this boolean like this.
+        if (speed == 0)
+        {
+            hasEnoughFood = true;
+        }
+
+        else if (foodCount + ((int)stats[0] -  (rationLevel * livingSettlers)) < 0)
+        {
+            hasEnoughFood = false;
+        }
+
+        else
+        {
+            hasEnoughFood = true;
+        }
+
+        //actually doing the calls to the ui itself
+        if(!hasEnoughFood)
+        {
+            UIManager.GetComponent<UIGroupManager>().toggleFoodWarning(true);
+        }
+
+        else
+        {
+            UIManager.GetComponent<UIGroupManager>().toggleFoodWarning(false);
+        }
+
+        if (!hasEnoughCharge)
+        {
+            UIManager.GetComponent<UIGroupManager>().toggleChargeWarning(true);
+        }
+
+        else
+        {
+            UIManager.GetComponent<UIGroupManager>().toggleChargeWarning(false);
+        }
+
+
     }
 
    
@@ -336,8 +431,6 @@ public class CAR : MonoBehaviour
 
                     else
                     {
-
-                        speed = 0;
                     }
 
                     break;
@@ -350,7 +443,6 @@ public class CAR : MonoBehaviour
 
                     else
                     {
-                        speed = 0;
                     }
 
                     break;
@@ -363,7 +455,6 @@ public class CAR : MonoBehaviour
 
                     else
                     {
-                        speed = 0;
                     }
 
                     break;
@@ -374,11 +465,6 @@ public class CAR : MonoBehaviour
             }
 
             //food consumption
-            if(foodCount <= 0)
-            {
-                rationLevel = 0;
-            }
-
             foodCount += (int)stats[0];
             foodCount -= rationLevel * livingSettlers;
             rationScore += rationLevel;
@@ -650,4 +736,44 @@ public class CAR : MonoBehaviour
     {
         return rationScore;
     }
+
+    public bool getHasEnoughFood()
+    {
+        return hasEnoughFood;
+    }
+
+    public bool getHasEnoughCharge()
+    {
+        return hasEnoughCharge;
+    }
+
+    public int getLivingSettlerCount()
+    {
+        return livingSettlers;
+    }
+
+    //this is used to get the charge we're expected to use ONLY considering speed
+    //so far only used in the ui updates
+    public int getBatteryChargeForSpeed()
+    {
+        switch (speed)
+        {
+            case 0:
+                return 0;
+
+            case 10:
+                return 1;
+
+            case 15:
+                return 2;
+
+            case 20:
+                return 3;
+
+            default:
+                Debug.Log("Error in the battery charge switch case in CAR getCharge");
+                return 0;
+        }
+    }
 }
+

@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         //Debug.Log(existingCAR.getHasEventActive());
-        if (existingCAR.getHasEventActive())
+        if (existingCAR.getHasEventActive() || !existingCAR.getHasEnoughFood() || !existingCAR.getHasEnoughCharge())
         {
             eventsGone(false);
         }
