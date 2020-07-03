@@ -380,7 +380,7 @@ public class CAR : MonoBehaviour
             }
 
             foodCount += (int)stats[0];
-            foodCount -= rationLevel * livingSettlers
+            foodCount -= rationLevel * livingSettlers;
             rationScore += rationLevel;
 
             if(foodCount < 0)
@@ -487,6 +487,7 @@ public class CAR : MonoBehaviour
             stats[i] -= removeStats[i];
         }
 
+        livingSettlers--;
         UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
         //NOTE: the settler stays in the list since our ui quad calculations depend on this assumption
         //as far as this car is concerned, and as far as the events are concerned, it doesn't exist
