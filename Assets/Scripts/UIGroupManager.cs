@@ -14,6 +14,8 @@ public class UIGroupManager : MonoBehaviour
     public GameObject detailedCarInfo;
     public GameObject foodWarning;
     public GameObject chargeWarning;
+    public GameObject repairButton;
+    public GameObject reapirModule;
 
     //I'm so fucking stupid but we're hitting this with our gucci on
     //Event window stuff
@@ -24,7 +26,6 @@ public class UIGroupManager : MonoBehaviour
     //((hey I can make this more generic but fuck that for the time being)
     public void toggleTurnButton(bool toggleTo)
     {
-        Debug.Log("Called toggle");
         turnButton.SetActive(toggleTo);
     }
 
@@ -51,6 +52,11 @@ public class UIGroupManager : MonoBehaviour
     public void toggleChargeWarning(bool toggleTo)
     {
         chargeWarning.SetActive(toggleTo);
+    }
+
+    public void toggleRepairButton(bool toggleTo)
+    {
+        repairButton.SetActive(toggleTo);
     }
 
     public void refreshCarInfo()

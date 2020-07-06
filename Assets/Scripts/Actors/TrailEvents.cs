@@ -74,6 +74,7 @@ public class TrailEvents
         {
             switch (eventCheckingList[0])
             {
+                //this case handdels breakdown events
                 case 0:
                     {
                         if (rolld100() <= 12)
@@ -89,13 +90,14 @@ public class TrailEvents
                         break;
                     }
 
+                //case for getting lost events
                 case 1:
                     {
                         if (rolld100() <= 12)
                         {
                             string[] eventTextTemp = new string[2];
-                            eventTextTemp[0] = "Lost";
-                            eventTextTemp[1] = "You lose time finding your way back to the trail";
+                            eventTextTemp[1] = "Lost!";
+                            eventTextTemp[2] = lostEvent(ref targetCar);
                             eventTextList.Add(eventTextTemp);
                             i++;
                             lostEvent(ref targetCar);
@@ -103,12 +105,13 @@ public class TrailEvents
                         break;
                     }
 
+                //case for finding resource
                 case 2:
                     {
                         if (rolld100() <= 12)
                         {
                             //have the find reosurce method return formatted text based on what is discovered AND do operation`
-                            string[] eventTextTemp = findResourceEvent(ref targetCar); ;
+                            string[] eventTextTemp = findResourceEvent(ref targetCar);
                             eventTextList.Add(eventTextTemp);
                             i++;
                             
@@ -116,6 +119,7 @@ public class TrailEvents
                         break;
                     }
 
+                //case for losing a resource
                 case 3:
                     {
                         if (rolld100() <= 12)
@@ -127,6 +131,7 @@ public class TrailEvents
                         break;
                     }
 
+                //case for animal attack
                 case 4:
                     {
                         if (rolld100() <= 12)
@@ -141,6 +146,7 @@ public class TrailEvents
                         break;
                     }
 
+                //Case for Animal Tame
                 case 5:
                     {
                         if (rolld100() <= 12)
@@ -155,6 +161,7 @@ public class TrailEvents
                         break;
                     }
 
+                //case for module breakage
                 case 6:
                     {
                         if (rolld100() <= 12)
@@ -169,6 +176,7 @@ public class TrailEvents
                         break;
                     }
 
+                //case for rechager breaking ((might not even need thi event anymore))
                 case 7:
                     {
                         if (rolld100() <= 12)
@@ -182,7 +190,8 @@ public class TrailEvents
                         }
                         break;
                     }
-
+                
+                //case for recharge boost (might just change this to give or take chare outright??)
                 case 8:
                     {
                         if (rolld100() <= 12)
@@ -216,14 +225,11 @@ public class TrailEvents
     }
 
     //getting lost
-    public void lostEvent(ref CAR targetCar)
+    public string lostEvent(ref CAR targetCar)
     {
-        //message that you got lost
-        //increment the game time here but don't move the car
-        //Debug.Log("lost!");
-        
-        //advance time by 1d4, could I just grab the turn button function?
-        return;
+        int setBack = (int)Random.Range(10, 40);
+        targetCar.setMilesMoved(targetCar.getMilesMoved() - setBack);
+        return ("Your caravan got set back by " + setBack + " miles!");
     }
 
     //find a resource

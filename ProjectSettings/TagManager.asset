@@ -10,6 +10,8 @@ TagManager:
   - Manager
   - SettlerUI
   - EventBox
+  - CheckpointNode
+  - FirstCheckpointNode
   layers:
   - Default
   - TransparentFX

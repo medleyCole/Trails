@@ -93,7 +93,17 @@ public class CAR : MonoBehaviour
     public GameObject UIManager;
     public GameObject morningReportScreen;
     public GameObject turnButton; //THIS IS EXTREMELY TEMPORARY
-    
+
+    //map movement
+    private CheckpointNode CARcheckPointNode;
+    private Vector3 checkpointNodePosition;
+    //this is so janky
+    //we are going to store the position in miles of each checkpoint for the car to check at the end of its turn to do map movement
+    //when the car distance >= the stored distance, we use this list to do our calculations for various things
+    //it's uhhhhhhh not calculated with the node map right now unfortunately. Prototype stuff.
+    private List<int> checkpointMap;
+    private int checkpointIterator;
+
     private void Awake()
     {
         //in the future, object creation will be handeld by its own window to help the player
@@ -119,14 +129,14 @@ public class CAR : MonoBehaviour
         {
             float[] tempSettlerStats = new float[6];
             tempSettlerStats = settlerList[i].GetComponent<Settler>().getStats();
-            for(int j= 0; j < 6; j++)
+            for (int j = 0; j < 6; j++)
             {
                 stats[j] += tempSettlerStats[j];
 
-               // Debug.Log("current car stat " + j + ": " + stats[j]);
+                // Debug.Log("current car stat " + j + ": " + stats[j]);
             }
         }
-   
+
         //##resource allocation
         metalCount = defaultMetal;
         mediCount = defaultMedi;
@@ -148,6 +158,22 @@ public class CAR : MonoBehaviour
         medicalChecks = new sickCheck();
         rationScore = 0;
         livingSettlers = 4;
+
+
+        //checkpoint setup
+        //in the futuere when there is a game with multiple routes, this awake mehtod will get the start node of each route
+        //then, based on what the player selects as the route, it will assign that route's first node to this car here
+        CARcheckPointNode = GameObject.FindGameObjectsWithTag("FirstCheckpointNode")[0].GetComponent<CheckpointNode>();
+        checkpointNodePosition = CARcheckPointNode.transform.position;
+
+        //this part can be loded in after kitting but for now we're doing it manually
+        checkpointMap = new List<int>();
+        checkpointMap.Add(90);
+        checkpointMap.Add(190);
+        checkpointMap.Add(340);
+        checkpointMap.Add(430);
+
+        checkpointIterator = 0;
     }
 
     //use this to disable buttons based on car conditions
@@ -256,6 +282,16 @@ public class CAR : MonoBehaviour
         else
         {
             UIManager.GetComponent<UIGroupManager>().toggleChargeWarning(false);
+        }
+
+        if(isBroken)
+        {
+            UIManager.GetComponent<UIGroupManager>().toggleRepairButton(true);
+        }
+        
+        else
+        {
+            UIManager.GetComponent<UIGroupManager>().toggleRepairButton(false);
         }
 
 
@@ -502,6 +538,45 @@ public class CAR : MonoBehaviour
                     UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
                 }
             }
+
+            //moving towards the event over time
+            //so we want to find the ratio of the length between checkpoints we travel via in-game speed in distance (IE miles)
+            float distanceFactor = ((float)speed / CARcheckPointNode.GetComponent<CheckpointNode>().distanceFromLastNode);
+            //then we get the UNITY ifference of one node to another 
+            float unityDistance = Vector3.Distance(CARcheckPointNode.GetComponent<Transform>().position, CARcheckPointNode.GetComponent<CheckpointNode>().lastCheckpointNode.transform.position);
+            //so we are going to multiply that distance by our distance factor
+            float moveAmount = unityDistance * distanceFactor;
+            //and then w use that for the third argument in MoveTowards to say "hey, please move the car by this amount towards the next node"
+            this.GetComponentInParent<Transform>().position = Vector3.MoveTowards(this.GetComponentInParent<Transform>().position, CARcheckPointNode.GetComponent<Transform>().position, moveAmount);
+
+            //and overall this means we can just go ahead and place nodes on the map however we please and the car will know to move to them
+            //in an appropriate way to represent what's going on in the game logic. Very nifty.
+
+            //for finding a new checkpoint to move to
+            //we check to see if we are at t acheckpoint of moved passed it 
+            if(milesMoved >= checkpointMap[checkpointIterator])
+            {
+                //these two if statements refunds charge from the turn. note that this is assuming our speeds are: 0, 10, 15, 20
+                if(milesMoved - checkpointMap[checkpointIterator] == 5)
+                {
+                    addBatteryCharge(1);
+                }
+
+                if (milesMoved - checkpointMap[checkpointIterator] == 10)
+                {
+                    addBatteryCharge(2);
+                }
+
+                //assign  a new checkpoint node for this car using the node's stored next node
+                this.GetComponentInParent<Transform>().position = checkpointNodePosition;
+                CARcheckPointNode = CARcheckPointNode.nextCheckpointNode.GetComponent<CheckpointNode>();
+                checkpointNodePosition = CARcheckPointNode.GetComponent<Transform>().position;
+
+                //update our milage to be exactly the node we are at and ALSO amake sure our checkpoint iterator increments.
+                Debug.Log("hit a checkpoint!");
+                milesMoved = checkpointMap[checkpointIterator];
+                checkpointIterator++;
+            }
         }
 
         //not moving case, food and energy reclimation happens here
@@ -558,12 +633,6 @@ public class CAR : MonoBehaviour
     /*##############################
      * Calls to do routine events
      * ###########################*/
-    //functions for the individual events go here
-    private void nightOperations()
-    {
-
-    }
-
     public void removeSettler(int settler)
     {
         //first remove the settler's stats from our total
@@ -624,6 +693,11 @@ public class CAR : MonoBehaviour
     {
         isRechargerBroken = broken;
         return;
+    }
+
+    public void setMilesMoved(int miles)
+    {
+        milesMoved = miles;
     }
 
     /*##############################
@@ -750,6 +824,11 @@ public class CAR : MonoBehaviour
     public int getLivingSettlerCount()
     {
         return livingSettlers;
+    }
+
+    public int getMilesMoved()
+    {
+        return (int)milesMoved;
     }
 
     //this is used to get the charge we're expected to use ONLY considering speed
