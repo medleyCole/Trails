@@ -19,6 +19,7 @@ public class CAR : MonoBehaviour
     //module
     private string module;
     private bool isModuleBroken;
+    private float[] moduleStats;
 
     //catelouges all of our modifiers for the car for easy math.
     private struct modifires { };
@@ -539,7 +540,7 @@ public class CAR : MonoBehaviour
                 }
             }
 
-            //moving towards the event over time
+            //##moving towards the current checkpoint over time
             //so we want to find the ratio of the length between checkpoints we travel via in-game speed in distance (IE miles)
             float distanceFactor = ((float)speed / CARcheckPointNode.GetComponent<CheckpointNode>().distanceFromLastNode);
             //then we get the UNITY ifference of one node to another 
@@ -567,13 +568,16 @@ public class CAR : MonoBehaviour
                     addBatteryCharge(2);
                 }
 
+                //go ahead and show the event for arriving at a checkpoint
+
+
+
                 //assign  a new checkpoint node for this car using the node's stored next node
                 this.GetComponentInParent<Transform>().position = checkpointNodePosition;
                 CARcheckPointNode = CARcheckPointNode.nextCheckpointNode.GetComponent<CheckpointNode>();
                 checkpointNodePosition = CARcheckPointNode.GetComponent<Transform>().position;
 
                 //update our milage to be exactly the node we are at and ALSO amake sure our checkpoint iterator increments.
-                Debug.Log("hit a checkpoint!");
                 milesMoved = checkpointMap[checkpointIterator];
                 checkpointIterator++;
             }
@@ -650,6 +654,43 @@ public class CAR : MonoBehaviour
         //this can be useful later so we can memorialize the dead settler or otherwise account for their not-being-alive
     }
 
+    //these three are specifically for module-related management
+    public void startScreenInit(string startModuleName, float[] startModuleStats)
+    {
+        module = startModuleName;
+        moduleStats = startModuleStats;
+        for(int i = 0; i < moduleStats.Length; i++)
+        {
+            stats[i] += moduleStats[i];
+        }
+
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+    //not sure if the isModuleBroken bool NEEDS to get flipped here but, just incase, it's here.
+    public void toggleModule(bool active)
+    {
+        if(active == false)
+        {
+            isModuleBroken = true;
+            for (int i = 0; i < moduleStats.Length; i++)
+            {
+                stats[i] -= moduleStats[i];
+            }
+        }
+
+        else
+        {
+            isModuleBroken = false;
+            for (int i = 0; i < moduleStats.Length; i++)
+            {
+                stats[i] += moduleStats[i];
+            }
+        }
+
+    }
+        
+
     /*##############################
      * Public Setters
      * ###########################*/
@@ -661,8 +702,9 @@ public class CAR : MonoBehaviour
         return;
     }
 
-    public void setModule(string module)
+    public void setModule(string setModule)
     {
+        module = setModule;
         return;
     }
 

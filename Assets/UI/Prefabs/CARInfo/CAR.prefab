@@ -48,4 +48,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00510fb74e9426742ac21a762facdee3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventMiles: 0
+  defaultMetal: 1
+  defaultFood: 24
+  defaultMedi: 0
+  hasEnoughFood: 0
+  hasEnoughCharge: 0
+  defaultBatts: 16
+  defaultRationLevel: 2
+  defaultSpeed: 10
+  eventsPerCheckpoint: 3
+  eventMiles: 20
+  hasEventReady: 0
+  managerRef: {fileID: 0}
+  UIManager: {fileID: 0}
+  morningReportScreen: {fileID: 0}
+  turnButton: {fileID: 0}

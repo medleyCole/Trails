@@ -28,9 +28,29 @@ public class infoUIScript : MonoBehaviour
         {
             foodMod.text = (tempStats[0] - selectedCar.getRationLevel() * selectedCar.getLivingSettlerCount() + selectedCar.getLivingSettlerCount() * 2).ToString();
         }
-        //this also needs to refactor some shit
-        battSpendMod.text = "-" + (tempStats[1] + selectedCar.getBatteryChargeForSpeed()).ToString();
-        rechargeMod.text = "+"  + tempStats[2].ToString();
+        //you don't use battery while moving and you don't recharge while moving. the UI reflects that here
+        if (selectedCar.getSpeed() == 0)
+        {
+            //recharging has a base of 1/day, the car code already knows that, so the ui needds to reflect that.
+            if (tempStats[2] <= 0)
+            {
+                rechargeMod.text = "+1";              
+            }
+            else
+            {
+                rechargeMod.text = "+" + (tempStats[2] + 1).ToString();
+            }
+
+            battSpendMod.text = "0";
+        }
+
+        else
+        {
+            battSpendMod.text = "-" + (tempStats[1] + selectedCar.getBatteryChargeForSpeed()).ToString();
+            rechargeMod.text = "0";
+
+        }
+        
         repairMod.text = "+" + tempStats[3].ToString();
         healMod.text = "+" + tempStats[4].ToString();
         animalHandlingMod.text = "+" + tempStats[5].ToString();
