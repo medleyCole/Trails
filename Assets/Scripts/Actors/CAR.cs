@@ -896,5 +896,16 @@ public class CAR : MonoBehaviour
                 return 0;
         }
     }
+
+    //getters for the checkpoint map, mostly just used for the ui
+    public int getCheckpointMapAt(int index)
+    {
+        return checkpointMap[index];
+    }
+
+    public int getCheckpointIterator()
+    {
+        return checkpointIterator;
+    }
 }
 

@@ -68,7 +68,7 @@ public class EquipScreen : MonoBehaviour
         //you need to combine that with -rationLevel*livingSettlercount
         foodMod.text = (tempStats[0].ToString());
         battSpendMod.text = "-" + (tempStats[1]);
-        rechargeMod.text = "+" + tempStats[2].ToString();
+        rechargeMod.text = "+" + (tempStats[2] + 1).ToString();
         repairMod.text = "+" + tempStats[3].ToString();
         healMod.text = "+" + tempStats[4].ToString();
         animalHandlingMod.text = "+" + tempStats[5].ToString();
@@ -253,7 +253,10 @@ public class EquipScreen : MonoBehaviour
 
         else if (cargoSelected == 1)
         {
+            //the starting car will always have a starting charge congruent with its starting capacity
+            //since the defaults are equal im the car script, applying the +4 (or whatever) to capacity to the charge works
             selectedCar.addBatteryCapacity(cargoAmounts[1]);
+            selectedCar.addBatteryCharge(cargoAmounts[1]);
         }
 
         else if (cargoSelected == 2)

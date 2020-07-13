@@ -14,6 +14,9 @@ public class valuesFromCar : MonoBehaviour
     public TMPro.TextMeshProUGUI speedText;
     public TMPro.TextMeshProUGUI rationText;
 
+    public TMPro.TextMeshProUGUI distTraveled;
+    public TMPro.TextMeshProUGUI distNextCheckpoint;
+
     public GameObject settlerUI0;
     public GameObject settlerUI1;
     public GameObject settlerUI2;
@@ -46,6 +49,9 @@ public class valuesFromCar : MonoBehaviour
         metalNum.text = selectedCar.getMetalCount().ToString();
         speedText.text = selectedCar.GetComponent<CAR>().getSpeed().ToString();
         rationText.text = selectedCar.GetComponent<CAR>().getRationLevel().ToString();
+
+        distTraveled.text = selectedCar.GetComponent<CAR>().getDistanceTraveled().ToString();
+        distNextCheckpoint.text = selectedCar.GetComponent<CAR>().getCheckpointMapAt(selectedCar.getCheckpointIterator()).ToString();
 
         //right now we're assumting that there are 4 settlers and they won't die.
         //having settlers die is gonna be it's own ish

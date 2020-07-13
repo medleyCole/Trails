@@ -16,11 +16,11 @@ public class UIGroupManager : MonoBehaviour
     public GameObject chargeWarning;
     public GameObject repairButton;
     public GameObject reapirModule;
+    
 
     //I'm so fucking stupid but we're hitting this with our gucci on
     //Event window stuff
-    public TMPro.TextMeshProUGUI eventTitle;
-    public TMPro.TextMeshProUGUI eventText;
+   
 
 
     //((hey I can make this more generic but fuck that for the time being)
