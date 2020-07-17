@@ -12,11 +12,11 @@ public class dayMonthDisplay : MonoBehaviour
 
     void Awake()
     {
-        dayMonthText.text = (timeRef.GetComponent<Time>().getDay() + ",  " + timeRef.GetComponent<Time>().getMonth());
+        dayMonthText.text = (timeRef.GetComponent<myTime>().getDay() + ",  " + timeRef.GetComponent<myTime>().getMonth());
     }
 
     public void updateTime()
     {
-        dayMonthText.text = (timeRef.GetComponent<Time>().getDay() + ",  " + timeRef.GetComponent<Time>().getMonth());
+        dayMonthText.text = (timeRef.GetComponent<myTime>().getDay() + ",  " + timeRef.GetComponent<myTime>().getMonth());
     }
 }

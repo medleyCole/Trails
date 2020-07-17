@@ -11,12 +11,12 @@ public class dateTimeDisplay : MonoBehaviour
 
     void Awake()
     {
-        dateTimeText.text = ("|" + timeRef.GetComponent<Time>().getMonthNum() + " / " + timeRef.GetComponent<Time>().getDate()) + "| " + timeRef.GetComponent<Time>().getHour();
+        dateTimeText.text = ("|" + timeRef.GetComponent<myTime>().getMonthNum() + " / " + timeRef.GetComponent<myTime>().getDate()) + "| " + timeRef.GetComponent<myTime>().getHour();
     }
 
     public void updateTime()
     {
-        dateTimeText.text = ("|" + timeRef.GetComponent<Time>().getMonthNum() + " / " + timeRef.GetComponent<Time>().getDate()) + "| " + timeRef.GetComponent<Time>().getHour();
+        dateTimeText.text = ("|" + timeRef.GetComponent<myTime>().getMonthNum() + " / " + timeRef.GetComponent<myTime>().getDate()) + "| " + timeRef.GetComponent<myTime>().getHour();
 
     }
 }

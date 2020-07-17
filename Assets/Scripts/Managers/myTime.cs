@@ -5,7 +5,7 @@ using UnityEngine;
 //And you may say to yourself: "Gourd why do you need this?"
 //To wich I respond: because I have no idea how the fuck we're doing anything yet and it never hurts to be flexible
 //...unless you don't stretch often.
-public class Time : MonoBehaviour
+public class myTime : MonoBehaviour
 {
     //the player can name the months and days. 
     //there are 4 months with 4 weeks with 5 days, 

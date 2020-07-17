@@ -344,7 +344,7 @@ public class CAR : MonoBehaviour
     {
 
         //check the time, if it's 2000, don't move
-        if (managerRef.GetComponent<Time>().getHour() == 0)
+        if (managerRef.GetComponent<myTime>().getHour() == 0)
         {
             hasEventReady = true;
             numEventsActive = 1;
@@ -353,7 +353,7 @@ public class CAR : MonoBehaviour
 
         //if it's 800, show the morning report
         //we also do our disease-related checking here
-        else if (managerRef.GetComponent<Time>().getHour() == 400)
+        else if (managerRef.GetComponent<myTime>().getHour() == 400)
         {
             hasEventReady = true;
             numEventsActive = 1;
@@ -553,6 +553,7 @@ public class CAR : MonoBehaviour
             //and overall this means we can just go ahead and place nodes on the map however we please and the car will know to move to them
             //in an appropriate way to represent what's going on in the game logic. Very nifty.
 
+            //THESE LINES MAKE THE CAR STOP AT A CHECKPOINT WITHOUT BLOWING PAST IT
             //for finding a new checkpoint to move to
             //we check to see if we are at t acheckpoint of moved passed it 
             if(milesMoved >= checkpointMap[checkpointIterator])
@@ -586,7 +587,7 @@ public class CAR : MonoBehaviour
         //not moving case, food and energy reclimation happens here
         //I want to have a ui element display so a player knows that too
         //it has to be done in this fuggoff ugly way so that when the battery can't be drained past 0, we can access this case
-        if(speed == 0 && !(managerRef.GetComponent<Time>().getHour() == 0)  && !(managerRef.GetComponent<Time>().getHour() == 400))
+        if(speed == 0 && !(managerRef.GetComponent<myTime>().getHour() == 0)  && !(managerRef.GetComponent<myTime>().getHour() == 400))
         {
             //during speed 0, settlers will find atleast 2 food a day each, they still eat according to ration level though
             //also only postive food find stats apply.

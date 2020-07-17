@@ -209,9 +209,11 @@ public class sickCheck
                     infectList.Add(targetCar.getSettlerFromList(j));
                 }
             }
+            //note, this will run if there is a dead settler in the party at all
             if(!isHealthySettler)
             {
-                Debug.Log("There is nobody to infect!");
+                Debug.Log("There is nobody to infect so far!");
+                Debug.Log("At settler: " + i);
             }
 
            if (targetCar.getSettlerFromList(i).getIsSick() && isHealthySettler && !targetCar.getSettlerFromList(i).getIsDead())
