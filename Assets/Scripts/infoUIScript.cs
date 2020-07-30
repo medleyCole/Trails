@@ -28,10 +28,17 @@ public class infoUIScript : MonoBehaviour
         {
             foodMod.text = (tempStats[0] - selectedCar.getRationLevel() * selectedCar.getLivingSettlerCount() + selectedCar.getLivingSettlerCount() * 2).ToString();
         }
+
+        //if the car has a ration level of 0, then nobody is eating period
+        if(selectedCar.getRationLevel() == 0)
+        {
+            foodMod.text = "0";
+        }
         //you don't use battery while moving and you don't recharge while moving. the UI reflects that here
         if (selectedCar.getSpeed() == 0)
         {
-            //recharging has a base of 1/day, the car code already knows that, so the ui needds to reflect that.
+            //recharging has a base of 1/day and doesn't spend a batt charge,
+            //the car code already knows that, so the ui needds to reflect that.
             if (tempStats[2] <= 0)
             {
                 rechargeMod.text = "+1";              

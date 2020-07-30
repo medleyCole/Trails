@@ -47,6 +47,7 @@ public class TrailEvents
             //Debug.Log("Event script is checking" + eventCheckingList.Count + " events.");
         }
 
+        /*
        //this just helps things go faster
         else if(numToCheck == numEventFunctions)
         {
@@ -61,7 +62,7 @@ public class TrailEvents
         {
             Debug.Log("Not enough events for requested event rolls");
         }
-
+        */
 
         //###Actually Doing the events (I know it's ugly)
         //this should be in a for loop but an iterator variable outside of a while is just the same

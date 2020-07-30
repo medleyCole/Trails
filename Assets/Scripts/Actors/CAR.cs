@@ -71,6 +71,8 @@ public class CAR : MonoBehaviour
     public int eventMiles;
     //reference to trailEventObject for calling events
     private TrailEvents trailEventManager;
+    //the same but for checkpoint events
+    private checkpointEvent checkPointEventManager;
     //composing text to send to UIGroupManager for window calls
     private List<string[]> intervalEventText;
     //logic used to tell game manager what to do with the turn button
@@ -136,6 +138,12 @@ public class CAR : MonoBehaviour
 
                 // Debug.Log("current car stat " + j + ": " + stats[j]);
             }
+        }
+
+        // the caravan must lose atleast 1 batt a day
+        if(stats[1] <= 0)
+        {
+            stats[1] = 1;
         }
 
         //##resource allocation
@@ -502,9 +510,30 @@ public class CAR : MonoBehaviour
             }
 
             //food consumption
-            foodCount += (int)stats[0];
-            foodCount -= rationLevel * livingSettlers;
-            rationScore += rationLevel;
+            //if the ration level is 0, nobody is eating so just don't do anything
+            if (rationLevel == 0)
+            {
+                foodCount += 0;
+            }
+
+            //otherwise, the whole caravan has to eat atleast 1 unit of rations
+            else
+            {
+                if((int)stats[0] - rationLevel*livingSettlers >= 0)
+                {
+                    foodCount -= 1;
+                }
+
+                else
+                {
+                    foodCount += (int)stats[0];
+                    foodCount -= rationLevel * livingSettlers;
+                }
+                
+                //a note on the atleastone rule, that means a ration level could be at 3
+                //and the caravan only eats once a day. that's the reward for a stupidly high food stat
+                rationScore += rationLevel;
+            }
 
             if(foodCount < 0)
             {
@@ -513,7 +542,7 @@ public class CAR : MonoBehaviour
 
             //after that, move the car
             //we don't need to check for speed0 here since this next line covers that case by default
-            milesMoved += speed;
+            milesMoved += 90;
 
          
             //###EVENT CHECKING
@@ -531,7 +560,7 @@ public class CAR : MonoBehaviour
                     numEventsActive = intervalEventText.Count;
                 }
 
-                //thi sends the array text it got from the trail event manager to the ui manager for display
+                //thiS sends the array text it got from the trail event manager to the ui manager for display
                 //then we go and tell the uimanager to refresh the whole window via the carsValueScript
                 for(int i = 0; i < intervalEventText.Count; i++)
                 {
@@ -570,7 +599,9 @@ public class CAR : MonoBehaviour
                 }
 
                 //go ahead and show the event for arriving at a checkpoint
-
+                //note since we're doing event processing, we can just call this in the UI then move onto the next checkpoint
+                //so for now checkpoit events can't make the player wait for time to pass
+                UIManager.GetComponent<UIGroupManager>().checkpointEvent(checkpointIterator+1);
 
 
                 //assign  a new checkpoint node for this car using the node's stored next node
@@ -593,7 +624,7 @@ public class CAR : MonoBehaviour
             //also only postive food find stats apply.
             foodCount += livingSettlers * 2;
             foodCount -= rationLevel * livingSettlers;
-            if (stats[0] > 0)
+            if(stats[0] > 0)
             {
                 foodCount += (int)stats[0];
             }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +16,9 @@ public class UIGroupManager : MonoBehaviour
     public GameObject chargeWarning;
     public GameObject repairButton;
     public GameObject reapirModule;
-    
+
+    //the actual setup for the text and stuff for this is attached to the checkpointEventPanel.
+    public GameObject checkpointEventPanel;
 
     //I'm so fucking stupid but we're hitting this with our gucci on
     //Event window stuff
@@ -63,5 +65,21 @@ public class UIGroupManager : MonoBehaviour
     {
         carInfo.GetComponent<valuesFromCar>().turnUpdate();
         detailedCarInfo.GetComponent<infoUIScript>().refreshCaravanInfo();
+    }
+
+    //takes an int to show which node the player is at,
+    //will also 
+    public void checkpointEvent(int eventNode)
+    {
+        checkpointEventPanel.SetActive(true);
+        checkpointEventPanel.GetComponent<CheckpointBox>().showEvent(eventNode);
+        checkpointEventPanel.GetComponent<checkpointEvent>().callCheckpointEvent(eventNode);     
+        turnButton.SetActive(false);
+    }
+
+    public void resolveCheckpointEvent()
+    {
+        checkpointEventPanel.SetActive(false);
+        turnButton.SetActive(true);
     }
 }
