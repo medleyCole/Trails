@@ -59,7 +59,5 @@ public class valuesFromCar : MonoBehaviour
         settlerUI1.GetComponent<settlerQuadInfo>().updateSettler();
         settlerUI2.GetComponent<settlerQuadInfo>().updateSettler();
         settlerUI3.GetComponent<settlerQuadInfo>().updateSettler();
-
-
     }
 }

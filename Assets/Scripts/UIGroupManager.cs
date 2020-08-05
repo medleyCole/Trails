@@ -71,10 +71,10 @@ public class UIGroupManager : MonoBehaviour
     //will also 
     public void checkpointEvent(int eventNode)
     {
+        turnButton.SetActive(false);
         checkpointEventPanel.SetActive(true);
         checkpointEventPanel.GetComponent<CheckpointBox>().showEvent(eventNode);
-        checkpointEventPanel.GetComponent<checkpointEvent>().callCheckpointEvent(eventNode);     
-        turnButton.SetActive(false);
+        checkpointEventPanel.GetComponent<checkpointEvent>().callCheckpointEvent(eventNode);      
     }
 
     public void resolveCheckpointEvent()

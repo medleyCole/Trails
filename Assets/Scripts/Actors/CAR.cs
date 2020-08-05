@@ -81,7 +81,7 @@ public class CAR : MonoBehaviour
     private int numEventsClosed;
 
     //medical event stuff
-    private int rationScore;   //used for braeting, incrimented by ration level every turn, reset in morning
+    private int rationScore;   // incrimented by ration level every turn, reset in morning
     private sickCheck medicalChecks;
     private List<string[]> sickList;
     private List<string[]> killList;
@@ -181,6 +181,8 @@ public class CAR : MonoBehaviour
         checkpointMap.Add(190);
         checkpointMap.Add(340);
         checkpointMap.Add(430);
+        checkpointMap.Add(530);
+        checkpointMap.Add(650);
 
         checkpointIterator = 0;
     }
@@ -438,6 +440,7 @@ public class CAR : MonoBehaviour
         //this is a turn case for when the player is moving during the day
         else if(speed != 0)
         {
+            Debug.Log("Speed != 0");
             //if the ration level is 0, try and kill someone 
             //5% chance a settler dies when they can't eat
             if(rationLevel == 0)
@@ -542,7 +545,7 @@ public class CAR : MonoBehaviour
 
             //after that, move the car
             //we don't need to check for speed0 here since this next line covers that case by default
-            milesMoved += 90;
+            milesMoved += 200;
 
          
             //###EVENT CHECKING
@@ -601,6 +604,10 @@ public class CAR : MonoBehaviour
                 //go ahead and show the event for arriving at a checkpoint
                 //note since we're doing event processing, we can just call this in the UI then move onto the next checkpoint
                 //so for now checkpoit events can't make the player wait for time to pass
+                //it's checkpoint iterator +1 because the iterator doesn't tick after the 0th checkpoint which is where the car starts
+                //keep this way sense a few lines down where we make sure the car is EXACTLY where the current node is. 
+                numEventsActive++;
+                hasEventReady = true;
                 UIManager.GetComponent<UIGroupManager>().checkpointEvent(checkpointIterator+1);
 
 
@@ -774,10 +781,88 @@ public class CAR : MonoBehaviour
         milesMoved = miles;
     }
 
+    public void makeRandomSettlersSick(int makeSick)
+    {
+        //list of settler indexes we can infect
+        List<int> infectableList = new List<int>();
+        //make sure we're only trying to infect alive and healthy settlers
+        int healthySettlers = 0;
+        for(int i = 0; i < settlerList.Count; i++)
+        {
+            if(settlerList[i].GetComponent<Settler>().getIsSick() == false && settlerList[i].GetComponent<Settler>().getIsDead() == false)
+            {
+                healthySettlers++;
+                //this list gets the indexes of the alive healthy settlers put into it
+                infectableList.Add(i);
+            }
+        }
+
+        //the requested amount of settlers to make sick will be reduced to the maximum that CAN get sick
+        if(makeSick > healthySettlers )
+        {
+            makeSick = healthySettlers;
+        }
+
+        //infect the requested number of settlers using a random index availble in the 
+        for(int i = 0; i < makeSick; i++)
+        {
+            //pick a settler in the settler list using the list of ints that mark the healthy settlers to infect
+            //ie: if settler 3 and 4 is infectable, we get a random index in infectableList from  0 to 1  and ask settler list for settler 3 or 4.
+            int infectableListIndex = (int)Random.Range(0, healthySettlers - 1);
+            settlerList[infectableList[infectableListIndex]].GetComponent<Settler>().setIsSick(true);
+
+            //make sure when we make a settler sick we inform the function that someone got sick
+            infectableList.Remove(infectableListIndex);
+            healthySettlers--;
+        }
+        if(makeSick == 0)
+        {
+            hasEventReady = true;
+            numEventsActive++;
+            UIManager.GetComponent<UIGroupManager>().callEvent("'Sick'", "Your settlers are all already sick and can't get MORE sick. Nice?", this);
+        }
+        else
+        {
+            hasEventReady = true;
+            numEventsActive++;
+            UIManager.GetComponent<UIGroupManager>().callEvent("Sick", makeSick.ToString() + " settlers got sick!", this);
+        }
+
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
+
+    public void killRandomSettler(int numToKill)
+    {
+        //m,ake sure we don't try to kill more settlers then there are
+        if(numToKill > livingSettlers)
+        {
+            numToKill = livingSettlers;
+        }
+
+        for(int i = 0; i < numToKill; i++)
+        {
+            if(settlerList[(int)Random.Range(0, 3)].GetComponent<Settler>().getIsDead() == false)
+            {
+                int indexSettlerToKill = (int)Random.Range(0, 3);
+                settlerList[indexSettlerToKill].GetComponent<Settler>().setIsDead(true);
+                removeSettler(indexSettlerToKill);
+
+                //since we're killing a settler and tellinbg the player, we need our event management variables to like- be aware fo that.
+                hasEventReady = true;
+                numEventsActive++;
+                //out message to the ui manager.
+                UIManager.GetComponent<UIGroupManager>().callEvent("Settler Killed! ", 
+                    settlerList[indexSettlerToKill].GetComponent<Settler>().getName() + " was killed!", this);
+            }
+        }
+
+        UIManager.GetComponent<UIGroupManager>().refreshCarInfo();
+    }
     /*##############################
       * PublicIncrementers
+      * PublicIncrementers
       * ###########################*/
-    public void decrimentNumEventsActive(int num)
+    public void decreaseNumEventsActive(int num)
     {
         numEventsActive -= num;
     }

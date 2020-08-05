@@ -30,9 +30,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void incrementSelectedCarEventCounter()
+    public void decrementSelectedCarEventCounter()
     {
-        existingCAR.decrimentNumEventsActive(1);
+        existingCAR.decreaseNumEventsActive(1);
     }
 
     public void eventsGone(bool gone)

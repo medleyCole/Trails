@@ -209,11 +209,11 @@ public class sickCheck
                     infectList.Add(targetCar.getSettlerFromList(j));
                 }
             }
-            //note, this will run if there is a dead settler in the party at all
+            //note, I have no idea why we have this case here. Presumably, it's just for debugging. 
             if(!isHealthySettler)
             {
-                Debug.Log("There is nobody to infect so far!");
-                Debug.Log("At settler: " + i);
+                //Debug.Log("There is nobody to infect so far!");
+                //Debug.Log("At settler: " + i);
             }
 
            if (targetCar.getSettlerFromList(i).getIsSick() && isHealthySettler && !targetCar.getSettlerFromList(i).getIsDead())
